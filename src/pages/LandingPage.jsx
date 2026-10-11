@@ -14,7 +14,7 @@ export function LandingPage() {
 
       {/* Landing Page Sections */}
       <Navbar />
-      <main className="space-y-6">
+      <main>
         <Hero />
         <ProblemComparison />
         <ReadinessSimulator />

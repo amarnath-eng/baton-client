@@ -51,17 +51,17 @@ export function WorkflowRoles() {
   ]
 
   return (
-    <section id="workflow" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 space-y-16">
+    <section id="workflow" className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8 space-y-12">
       {/* 9-Step Lifecycle Flow */}
       <div>
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             End-to-End Lifecycle &bull; Section 3
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 text-balance">
             The 9-Step Verification Workflow
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-zinc-400 text-balance">
             Every handover transitions through a strictly auditable state machine
             from initial setup to final sign-off.
           </p>
@@ -93,10 +93,10 @@ export function WorkflowRoles() {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             Role Architecture &bull; Section 2
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 text-balance">
             3 Product Roles & Contextual Ownership
           </h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-zinc-400 text-balance">
             Outgoing and incoming are responsibilities on a specific handover, not permanent account restrictions.
           </p>
         </div>

@@ -4,7 +4,7 @@ import { Card } from '../../components/ui/Card.jsx'
 
 export function Hero() {
   return (
-    <section className="relative mx-auto max-w-7xl px-4 pt-16 pb-20 sm:px-6 lg:px-8 text-center">
+    <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-10 sm:pt-16 sm:pb-12 sm:px-6 lg:px-8 text-center">
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Top Tag Pill */}
         <div className="inline-flex items-center gap-2">
@@ -15,10 +15,7 @@ export function Hero() {
 
         {/* Main Headline */}
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl text-white">
-          A handover is not complete just because someone wrote{' '}
-          <span className="bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-            documentation.
-          </span>
+          A handover is not complete just because someone wrote documentation.
         </h1>
 
         {/* Subtitle */}
@@ -44,7 +41,7 @@ export function Hero() {
       </div>
 
       {/* Hero Visual: Live Handover Inspector Card */}
-      <div className="mt-14 mx-auto max-w-2xl text-left">
+      <div className="mt-10 mx-auto max-w-2xl text-left">
         <Card className="border-zinc-800/80 bg-[#0c0c0e] shadow-2xl">
           <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
             <div>

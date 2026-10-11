@@ -64,7 +64,7 @@ export function ReadinessSimulator() {
   const isReady = passedCount === totalCount
 
   return (
-    <section id="readiness" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section id="readiness" className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8">
       <Card className="border-zinc-800/80 bg-[#0c0c0e] p-6 sm:p-10 shadow-2xl">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-zinc-800">

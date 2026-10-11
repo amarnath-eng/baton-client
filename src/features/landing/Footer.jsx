@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/Card.jsx'
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-900 bg-black pt-16 pb-12">
+    <footer className="border-t border-zinc-900 bg-black pt-12 pb-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Bottom CTA Card */}
         <Card className="text-center p-8 sm:p-12 border-zinc-800/80 bg-[#0c0c0e]">

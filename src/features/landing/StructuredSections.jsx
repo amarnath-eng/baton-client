@@ -48,7 +48,7 @@ export function StructuredSections() {
   ]
 
   return (
-    <section id="modules" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section id="modules" className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8">
       <div className="text-center max-w-2xl mx-auto mb-12">
         <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
           Module Architecture &bull; Section 5
