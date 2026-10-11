@@ -25,16 +25,61 @@ export function Hero() {
           system confirms readiness.
         </p>
 
-        {/* Call to Actions */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+        {/* Mobile Call to Actions (Get Started Free + Test Readiness Engine) */}
+        <div className="flex sm:hidden flex-col items-center justify-center gap-3 pt-2">
+          <Button
+            variant="primary"
+            className="group w-full justify-center text-sm font-semibold py-2.5 px-6 shadow-sm shadow-white/10"
+          >
+            <span>Get Started Free</span>
+          </Button>
+          <a href="#readiness" className="w-full">
+            <Button
+              variant="secondary"
+              className="w-full justify-center text-sm font-medium py-2.5 px-5"
+            >
+              <span>Test Readiness Engine</span>
+              <svg
+                className="w-4 h-4 ml-1.5 shrink-0 text-zinc-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </Button>
+          </a>
+          <p className="text-[11px] text-zinc-500 pt-0.5">
+            Built for engineering teams &bull; No credit card required
+          </p>
+        </div>
+
+        {/* Desktop Call to Actions (Test Readiness Engine + Explore 9-Step Workflow) */}
+        <div className="hidden sm:flex items-center justify-center gap-4 pt-2">
           <a href="#readiness">
-            <Button variant="primary">
-              Test Readiness Engine ↓
+            <Button variant="primary" className="group">
+              <span>Test Readiness Engine</span>
+              <svg
+                className="w-4 h-4 ml-1.5 shrink-0 transition-transform duration-200 group-hover:translate-y-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
             </Button>
           </a>
           <a href="#workflow">
-            <Button variant="secondary">
-              Explore 9-Step Workflow
+            <Button variant="secondary" className="group">
+              <span>Explore 9-Step Workflow</span>
+              <svg
+                className="w-4 h-4 ml-1.5 shrink-0 text-zinc-400 transition-transform duration-200 group-hover:translate-y-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
             </Button>
           </a>
         </div>

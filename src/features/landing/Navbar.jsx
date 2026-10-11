@@ -48,18 +48,32 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Desktop & Mobile CTA + Hamburger Toggle */}
-        <div className="flex items-center gap-2">
-          <Button variant="primary" className="text-xs px-3 py-1.5">
-            Register Workspace
+        {/* Desktop Auth Actions */}
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            type="button"
+            className="text-xs font-medium text-zinc-400 hover:text-white px-2.5 py-1.5 transition cursor-pointer rounded-lg hover:bg-zinc-900/60"
+          >
+            Log In
+          </button>
+          <Button variant="primary" className="text-xs px-3.5 py-1.5 font-medium">
+            Get Started
           </Button>
+        </div>
 
-          {/* Mobile Hamburger Button */}
+        {/* Mobile Actions: Direct Log In button + Hamburger Toggle */}
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            type="button"
+            className="text-xs font-medium text-zinc-200 hover:text-white px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900/70 hover:bg-zinc-800 transition cursor-pointer"
+          >
+            Log In
+          </button>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile navigation menu"
-            className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg border border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:text-white hover:border-zinc-700 transition cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded-lg border border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:text-white hover:border-zinc-700 transition cursor-pointer"
           >
             {mobileMenuOpen ? (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +88,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu (Nav links only) */}
+      {/* Mobile Drawer (Clean navigation jump links only) */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-zinc-800 bg-[#0c0c0e] px-4 py-3">
           <nav className="flex flex-col space-y-1">
