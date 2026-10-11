@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button.jsx'
 import { Card } from '../../components/ui/Card.jsx'
 
@@ -15,9 +16,11 @@ export function Footer() {
             workflow that leaves zero orphan tasks behind.
           </p>
           <div className="mt-6 flex justify-center">
-            <Button variant="primary" className="px-6 py-2.5">
-              Register Company Workspace
-            </Button>
+            <Link to="/register">
+              <Button variant="primary" className="px-6 py-2.5">
+                Register Company Workspace
+              </Button>
+            </Link>
           </div>
         </Card>
 

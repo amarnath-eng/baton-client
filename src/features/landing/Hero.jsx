@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { Card } from '../../components/ui/Card.jsx'
@@ -27,12 +28,14 @@ export function Hero() {
 
         {/* Mobile Call to Actions (Get Started Free + Test Readiness Engine) */}
         <div className="flex sm:hidden flex-col items-center justify-center gap-3 pt-2">
-          <Button
-            variant="primary"
-            className="group w-full justify-center text-sm font-semibold py-2.5 px-6 shadow-sm shadow-white/10"
-          >
-            <span>Get Started Free</span>
-          </Button>
+          <Link to="/register" className="w-full">
+            <Button
+              variant="primary"
+              className="group w-full justify-center text-sm font-semibold py-2.5 px-6 shadow-sm shadow-white/10"
+            >
+              <span>Get Started Free</span>
+            </Button>
+          </Link>
           <a href="#readiness" className="w-full">
             <Button
               variant="secondary"

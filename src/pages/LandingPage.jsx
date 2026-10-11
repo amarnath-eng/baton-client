@@ -6,7 +6,7 @@ import { StructuredSections } from '../features/landing/StructuredSections.jsx'
 import { WorkflowRoles } from '../features/landing/WorkflowRoles.jsx'
 import { Footer } from '../features/landing/Footer.jsx'
 
-export function LandingPage() {
+export default function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-x-clip bg-black text-zinc-100 font-['Inter',sans-serif] selection:bg-zinc-800 selection:text-white">
       {/* Subtle top ambient radial lighting */}
@@ -25,3 +25,4 @@ export function LandingPage() {
     </div>
   )
 }
+

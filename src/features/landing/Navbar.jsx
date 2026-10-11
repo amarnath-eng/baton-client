@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button.jsx'
 
 export function Navbar() {
@@ -17,14 +18,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-black/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-3">
+        {/* Brand Logo Home Link */}
+        <Link to="/" className="flex items-center gap-3 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white font-bold text-black text-base shadow-sm shrink-0">
             B
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-white text-base tracking-tight">Baton</span>
+              <span className="font-extrabold text-white text-base tracking-tight group-hover:text-zinc-300 transition-colors">
+                Baton
+              </span>
               <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
                 v0.1
               </span>
@@ -33,7 +36,7 @@ export function Navbar() {
               Engineering Continuity
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
@@ -50,25 +53,27 @@ export function Navbar() {
 
         {/* Desktop Auth Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            type="button"
+          <Link
+            to="/login"
             className="text-xs font-medium text-zinc-400 hover:text-white px-2.5 py-1.5 transition cursor-pointer rounded-lg hover:bg-zinc-900/60"
           >
             Log In
-          </button>
-          <Button variant="primary" className="text-xs px-3.5 py-1.5 font-medium">
-            Get Started
-          </Button>
+          </Link>
+          <Link to="/register">
+            <Button variant="primary" className="text-xs px-3.5 py-1.5 font-medium">
+              Get Started
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Actions: Direct Log In button + Hamburger Toggle */}
         <div className="md:hidden flex items-center gap-2">
-          <button
-            type="button"
+          <Link
+            to="/login"
             className="text-xs font-medium text-zinc-200 hover:text-white px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900/70 hover:bg-zinc-800 transition cursor-pointer"
           >
             Log In
-          </button>
+          </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
