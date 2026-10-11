@@ -61,11 +61,11 @@ export function Hero() {
           <div className="grid grid-cols-2 gap-4 py-4 text-xs border-b border-zinc-800/60">
             <div>
               <span className="text-zinc-500 block">Outgoing Engineer</span>
-              <span className="font-semibold text-zinc-200">Alex Morgan</span>
+              <span className="font-semibold text-zinc-200">Amarnath</span>
             </div>
             <div>
               <span className="text-zinc-500 block">Incoming Engineer</span>
-              <span className="font-semibold text-zinc-200">Maya Patel</span>
+              <span className="font-semibold text-zinc-200">Mani Shankar</span>
             </div>
           </div>
 
