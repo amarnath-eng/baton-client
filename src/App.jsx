@@ -1,31 +1,10 @@
-import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
+import LandingPage from './pages/LandingPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
 
-// Code-splitting: Separate bundles loaded on-demand
-const LandingPage = lazy(() => import('./pages/LandingPage.jsx'))
-const RegisterPage = lazy(() => import('./pages/RegisterPage.jsx'))
-
-// Minimal, elegant dark loading state
-function PageLoadingFallback() {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white font-bold text-black text-lg animate-pulse">
-          B
-        </div>
-        <div className="text-xs font-mono text-zinc-500">Loading continuity engine...</div>
-      </div>
-    </div>
-  )
-}
-
-// Root layout that wraps all child routes with Suspense fallback for lazy-loaded bundles
+// Root layout that renders active child route
 function RootLayout() {
-  return (
-    <Suspense fallback={<PageLoadingFallback />}>
-      <Outlet />
-    </Suspense>
-  )
+  return <Outlet />
 }
 
 const router = createBrowserRouter([
