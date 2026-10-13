@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
+import { EmailOtpVerifier } from './EmailOtpVerifier.jsx'
+import { registerApi } from '../../services/authApi.js'
 
-// Helper to convert company name into a URL-friendly slug
 function generateSlug(text) {
   return text
     .toLowerCase()
@@ -23,13 +24,15 @@ export function RegisterForm({ onSubmitSuccess }) {
     confirmPassword: '',
   })
 
+  const [verificationToken, setVerificationToken] = useState(null)
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Update company name and automatically derive the workspace slug
+  const isEmailVerified = Boolean(verificationToken)
+
   const handleCompanyChange = (e) => {
     const name = e.target.value
     setFormData((prev) => ({
@@ -44,51 +47,37 @@ export function RegisterForm({ onSubmitSuccess }) {
     }
   }
 
-  // Handle manual edits to the slug
   const handleSlugChange = (e) => {
     setIsSlugManuallyEdited(true)
     setFormData((prev) => ({ ...prev, workspaceSlug: generateSlug(e.target.value) }))
     if (errors.workspaceSlug) setErrors((prev) => ({ ...prev, workspaceSlug: '' }))
   }
 
-  // Generic field change
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
   }
 
-  // Client-side validation
+  const handleEmailChange = (e) => {
+    setFormData((prev) => ({ ...prev, email: e.target.value }))
+    setVerificationToken(null)
+    if (errors.email) setErrors((prev) => ({ ...prev, email: '' }))
+  }
+
   const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required'
-    }
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required'
+    if (!formData.email.trim()) newErrors.email = 'Work email is required'
+    else if (!isEmailVerified) newErrors.email = 'Please verify your work email with OTP first'
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!formData.email.trim()) {
-      newErrors.email = 'Work email is required'
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid work email'
-    }
+    if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required'
+    if (!formData.workspaceSlug.trim()) newErrors.workspaceSlug = 'Workspace slug is required'
 
-    if (!formData.companyName.trim()) {
-      newErrors.companyName = 'Company name is required'
-    }
+    if (!formData.password) newErrors.password = 'Password is required'
+    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
 
-    if (!formData.workspaceSlug.trim()) {
-      newErrors.workspaceSlug = 'Workspace slug is required'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required'
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters'
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirm password is required'
-    } else if (formData.confirmPassword !== formData.password) {
+    if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
@@ -96,21 +85,31 @@ export function RegisterForm({ onSubmitSuccess }) {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validateForm()) return
 
-    setIsSubmitting(true)
+    try {
+      setIsSubmitting(true)
+      const data = await registerApi({
+        fullName: formData.fullName,
+        email: formData.email,
+        companyName: formData.companyName,
+        workspaceSlug: formData.workspaceSlug,
+        password: formData.password,
+        verificationToken,
+      })
 
-    // Simulate registration submission (Backend integration in Day 2)
-    setTimeout(() => {
-      setIsSubmitting(false)
       if (onSubmitSuccess) {
-        onSubmitSuccess(formData)
+        onSubmitSuccess(data)
       } else {
-        alert(`Workspace "${formData.companyName}" (${formData.workspaceSlug}) registered successfully!`)
+        alert(`Workspace "${data.company.name}" created successfully! Owner logged in.`)
       }
-    }, 800)
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, form: err.message }))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -137,6 +136,12 @@ export function RegisterForm({ onSubmitSuccess }) {
 
       {/* Registration Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {errors.form && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400">
+            {errors.form}
+          </div>
+        )}
+
         {/* Full Name */}
         <Input
           id="fullName"
@@ -148,16 +153,12 @@ export function RegisterForm({ onSubmitSuccess }) {
           required
         />
 
-        {/* Work Email */}
-        <Input
-          id="email"
-          type="email"
-          label="Work Email"
-          placeholder="amarnath@company.com"
-          value={formData.email}
-          onChange={handleChange('email')}
-          error={errors.email}
-          required
+        {/* Email & OTP Verification (SRP Subcomponent) */}
+        <EmailOtpVerifier
+          email={formData.email}
+          onEmailChange={handleEmailChange}
+          onVerified={(token) => setVerificationToken(token)}
+          fieldError={errors.email}
         />
 
         {/* Company / Organization Name */}
@@ -180,11 +181,10 @@ export function RegisterForm({ onSubmitSuccess }) {
           value={formData.workspaceSlug}
           onChange={handleSlugChange}
           error={errors.workspaceSlug}
-          helperText="Unique identifier for your team's continuity workspace"
           required
         />
 
-        {/* Password with Eye Visibility Toggle */}
+        {/* Password */}
         <Input
           id="password"
           type={showPassword ? 'text' : 'password'}
@@ -205,7 +205,7 @@ export function RegisterForm({ onSubmitSuccess }) {
           }
         />
 
-        {/* Confirm Password with Eye Visibility Toggle */}
+        {/* Confirm Password */}
         <Input
           id="confirmPassword"
           type={showConfirmPassword ? 'text' : 'password'}
@@ -230,7 +230,7 @@ export function RegisterForm({ onSubmitSuccess }) {
         <Button
           type="submit"
           variant="primary"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isEmailVerified}
           className="w-full justify-center py-2.5 text-sm font-semibold shadow-sm mt-2 group"
         >
           {isSubmitting ? (
