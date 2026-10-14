@@ -43,7 +43,7 @@ export function useEmailOtp(email, onVerified) {
       const data = await sendOtpApi(email)
       setStatus('sent')
       setCooldown(60)
-      setRemainingResends(data.remainingResends ?? 2)
+      setRemainingResends(data?.remainingResends ?? 2)
       setSuccessMessage('Verification code sent to your email.')
     } catch (err) {
       setError(err.message)
@@ -68,9 +68,7 @@ export function useEmailOtp(email, onVerified) {
       const data = await verifyOtpApi(email, otp)
       setStatus('verified')
       setSuccessMessage('Email verified successfully!')
-      if (onVerified) {
-        onVerified(data.verificationToken)
-      }
+      onVerified?.(data?.verificationToken)
     } catch (err) {
       setError(err.message)
       if (err.message.includes('Too many')) {

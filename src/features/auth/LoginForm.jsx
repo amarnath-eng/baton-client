@@ -48,7 +48,7 @@ export function LoginForm({ onSubmitSuccess }) {
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        alert(`Welcome back, ${data.user.fullName}! Logged into ${data.company?.name || 'Baton'}.`)
+        alert(`Welcome back, ${data?.user?.fullName || 'User'}! Logged into ${data?.company?.name || 'Baton'}.`)
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

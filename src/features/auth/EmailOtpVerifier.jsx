@@ -20,7 +20,7 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError 
   const isCodeSent = status === 'sent' || status === 'verifying' || status === 'locked'
 
   const handleEmailInput = (e) => {
-    onEmailChange(e)
+    onEmailChange?.(e)
     if (status !== 'idle') {
       reset()
     }

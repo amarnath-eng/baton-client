@@ -103,7 +103,7 @@ export function RegisterForm({ onSubmitSuccess }) {
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        alert(`Workspace "${data.company.name}" created successfully! Owner logged in.`)
+        alert(`Workspace "${data?.company?.name || 'Workspace'}" created successfully! Owner logged in.`)
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

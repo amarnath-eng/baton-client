@@ -1,47 +1,60 @@
 const API_BASE = 'http://localhost:5000/api/auth'
 
+/**
+ * Centralized HTTP request helper
+ * Automatically includes credentials (cookies) on all requests
+ */
+async function request(endpoint, { headers, ...options } = {}) {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    credentials: 'include',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  })
+
+  const json = await res.json()
+
+  if (!res.ok || !json?.success) throw new Error(json?.message || 'Something went wrong')
+
+  return json?.data ?? {}
+}
+
 export async function sendOtpApi(email) {
-  const res = await fetch(`${API_BASE}/send-otp`, {
+  return request('/send-otp', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Failed to send verification code')
-  return data
 }
 
 export async function verifyOtpApi(email, otp) {
-  const res = await fetch(`${API_BASE}/verify-otp`, {
+  return request('/verify-otp', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, otp }),
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Failed to verify code')
-  return data
 }
 
 export async function registerApi(payload) {
-  const res = await fetch(`${API_BASE}/register`, {
+  return request('/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // Sends & saves HttpOnly cookie
     body: JSON.stringify(payload),
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Failed to complete registration')
-  return data
 }
 
 export async function loginApi(payload) {
-  const res = await fetch(`${API_BASE}/login`, {
+  return request('/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(payload),
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Login failed')
-  return data
+}
+
+export async function getMeApi() {
+  return request('/me')
+}
+
+export async function logoutApi() {
+  return request('/logout', {
+    method: 'POST',
+  })
 }
