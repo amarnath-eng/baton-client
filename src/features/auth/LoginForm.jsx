@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { loginApi } from '../../services/authApi.js'
 
 export function LoginForm({ onSubmitSuccess }) {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -48,7 +49,7 @@ export function LoginForm({ onSubmitSuccess }) {
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        alert(`Welcome back, ${data?.user?.fullName || 'User'}! Logged into ${data?.company?.name || 'Baton'}.`)
+        navigate('/')
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

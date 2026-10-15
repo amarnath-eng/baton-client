@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { EmailOtpVerifier } from './EmailOtpVerifier.jsx'
@@ -15,6 +15,7 @@ function generateSlug(text) {
 }
 
 export function RegisterForm({ onSubmitSuccess }) {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -103,7 +104,7 @@ export function RegisterForm({ onSubmitSuccess }) {
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        alert(`Workspace "${data?.company?.name || 'Workspace'}" created successfully! Owner logged in.`)
+        navigate('/')
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))
