@@ -72,10 +72,10 @@ export function ReadinessSimulator() {
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
               The Core Engine &bull; Section 7
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1">
               Server-Side Readiness Simulator
             </h2>
-            <p className="mt-2 text-sm text-zinc-400 max-w-xl">
+            <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-xl">
               The backend computes readiness from persisted database records. It rejects
               acknowledgement if even a single check fails. Click checks below to test:
             </p>
@@ -83,7 +83,7 @@ export function ReadinessSimulator() {
 
           {/* Verdict Card */}
           <div
-            className={`rounded-2xl border p-5 text-center min-w-[280px] transition-all duration-300 ${
+            className={`rounded-2xl border p-5 text-center w-full lg:w-auto lg:min-w-[280px] transition-all duration-300 ${
               isReady
                 ? 'border-emerald-500/40 bg-emerald-950/20 shadow-lg shadow-emerald-500/5'
                 : 'border-zinc-800 bg-zinc-900/60 shadow-lg'
@@ -93,7 +93,7 @@ export function ReadinessSimulator() {
               Server API Verdict
             </span>
             <div
-              className={`text-lg font-bold ${
+              className={`text-sm sm:text-base font-bold tracking-tight ${
                 isReady ? 'text-emerald-400' : 'text-amber-400'
               }`}
             >
@@ -120,7 +120,7 @@ export function ReadinessSimulator() {
                     : 'border-zinc-800/80 bg-zinc-900/30 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/60'
                 }`}
               >
-                <span className="text-base shrink-0 mt-0.5 font-bold">
+                <span className="text-xs sm:text-sm shrink-0 mt-0.5 font-bold">
                   {isPassed ? '✓' : '○'}
                 </span>
                 <div>

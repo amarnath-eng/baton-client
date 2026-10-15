@@ -41,10 +41,10 @@ export function ProblemComparison() {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             Why Ordinary Documents Fail
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 text-balance">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1 text-balance">
             Ordinary Document vs. Baton
           </h2>
-          <p className="mt-2 text-sm text-zinc-400 text-balance">
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 text-balance">
             Baton manages the transfer of engineering knowledge and accountability, not just files.
           </p>
         </div>

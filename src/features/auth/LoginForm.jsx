@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { loginApi } from '../../services/authApi.js'
+import { setCredentials } from '../../store/authSlice.js'
 
 export function LoginForm({ onSubmitSuccess }) {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -46,10 +49,11 @@ export function LoginForm({ onSubmitSuccess }) {
     try {
       setIsSubmitting(true)
       const data = await loginApi(formData)
+      dispatch(setCredentials(data))
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        navigate('/')
+        navigate('/dashboard')
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

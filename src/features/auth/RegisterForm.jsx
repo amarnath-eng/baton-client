@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { EmailOtpVerifier } from './EmailOtpVerifier.jsx'
 import { registerApi } from '../../services/authApi.js'
+import { setCredentials } from '../../store/authSlice.js'
 
 function generateSlug(text) {
   return text
@@ -16,6 +18,7 @@ function generateSlug(text) {
 
 export function RegisterForm({ onSubmitSuccess }) {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -101,10 +104,12 @@ export function RegisterForm({ onSubmitSuccess }) {
         verificationToken,
       })
 
+      dispatch(setCredentials(data))
+
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        navigate('/')
+        navigate('/dashboard')
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

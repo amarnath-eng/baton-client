@@ -8,16 +8,16 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Bottom CTA Card */}
         <Card className="text-center p-8 sm:p-12 border-zinc-800/80 bg-[#0c0c0e]">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
             End handover anxiety. Start verifying continuity.
           </h2>
-          <p className="mt-2 text-sm text-zinc-400 max-w-xl mx-auto">
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto">
             Give your engineering team a structured, reviewable, and auditable handover
             workflow that leaves zero orphan tasks behind.
           </p>
           <div className="mt-6 flex justify-center">
             <Link to="/register">
-              <Button variant="primary" className="px-6 py-2.5">
+              <Button variant="primary" className="text-xs sm:text-sm px-6 py-2.5 font-medium">
                 Register Company Workspace
               </Button>
             </Link>

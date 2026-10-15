@@ -53,10 +53,10 @@ export function StructuredSections() {
         <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
           Module Architecture &bull; Section 5
         </span>
-        <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1">
           Structured Handover Modules
         </h2>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-xs sm:text-sm text-zinc-400">
           No giant unformatted text files. Every handover is organized into structured,
           verifiable modules, each with its own completion criteria.
         </p>
@@ -73,7 +73,7 @@ export function StructuredSections() {
                 <Badge variant="zinc">{sec.tag}</Badge>
               </div>
 
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-sm sm:text-base font-bold text-white">
                 {sec.title}
               </h3>
               <p className="mt-2 text-xs text-zinc-400 leading-relaxed">

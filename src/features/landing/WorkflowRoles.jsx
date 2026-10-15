@@ -58,10 +58,10 @@ export function WorkflowRoles() {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             End-to-End Lifecycle &bull; Section 3
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 text-balance">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1 text-balance">
             The 9-Step Verification Workflow
           </h2>
-          <p className="mt-2 text-sm text-zinc-400 text-balance">
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 text-balance">
             Every handover transitions through a strictly auditable state machine
             from initial setup to final sign-off.
           </p>
@@ -93,10 +93,10 @@ export function WorkflowRoles() {
           <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
             Role Architecture &bull; Section 2
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 text-balance">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1 text-balance">
             3 Product Roles & Contextual Ownership
           </h2>
-          <p className="mt-2 text-sm text-zinc-400 text-balance">
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 text-balance">
             Outgoing and incoming are responsibilities on a specific handover, not permanent account restrictions.
           </p>
         </div>
@@ -106,7 +106,7 @@ export function WorkflowRoles() {
             <Card key={r.name} className="flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base font-bold text-white">{r.name}</h3>
+                  <h3 className="text-sm sm:text-base font-bold text-white">{r.name}</h3>
                   <Badge variant="zinc">{r.badge}</Badge>
                 </div>
                 <p className="text-xs text-zinc-400 mb-4">{r.desc}</p>
