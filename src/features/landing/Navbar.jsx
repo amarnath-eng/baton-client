@@ -84,7 +84,7 @@ export function Navbar() {
                 to="/login"
                 className="text-xs font-medium text-zinc-400 hover:text-white px-2.5 py-1.5 transition cursor-pointer rounded-lg hover:bg-zinc-900/60"
               >
-                Log In
+                Sign In
               </Link>
               <Link to="/register">
                 <Button

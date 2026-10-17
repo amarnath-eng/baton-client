@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { EmailOtpVerifier } from './EmailOtpVerifier.jsx'
 import { registerApi } from '../../services/authApi.js'
+import { checkSlugApi } from '../../services/companyApi.js'
 import { setCredentials } from '../../store/authSlice.js'
+
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 function generateSlug(text) {
   return text
@@ -34,8 +37,40 @@ export function RegisterForm({ onSubmitSuccess }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [slugStatus, setSlugStatus] = useState({
+    isChecking: false,
+    exists: false,
+    companyName: '',
+  })
+  const [isRequestAccessOpen, setIsRequestAccessOpen] = useState(false)
 
   const isEmailVerified = Boolean(verificationToken)
+
+  // Real-time slug check with debounce and regex guard
+  useEffect(() => {
+    const slug = formData.workspaceSlug.trim()
+
+    if (!slug || slug.length < 3 || !SLUG_REGEX.test(slug)) {
+      setSlugStatus({ isChecking: false, exists: false, companyName: '' })
+      return
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setSlugStatus((prev) => ({ ...prev, isChecking: true }))
+        const res = await checkSlugApi(slug)
+        setSlugStatus({
+          isChecking: false,
+          exists: Boolean(res.exists),
+          companyName: res.companyName || '',
+        })
+      } catch {
+        setSlugStatus({ isChecking: false, exists: false, companyName: '' })
+      }
+    }, 450)
+
+    return () => clearTimeout(timer)
+  }, [formData.workspaceSlug])
 
   const handleCompanyChange = (e) => {
     const name = e.target.value
@@ -77,6 +112,9 @@ export function RegisterForm({ onSubmitSuccess }) {
 
     if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required'
     if (!formData.workspaceSlug.trim()) newErrors.workspaceSlug = 'Workspace slug is required'
+    else if (slugStatus.exists) {
+      newErrors.workspaceSlug = `Workspace "${formData.workspaceSlug}" is taken. Choose another URL or click Request Access.`
+    }
 
     if (!formData.password) newErrors.password = 'Password is required'
     else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
@@ -190,87 +228,137 @@ export function RegisterForm({ onSubmitSuccess }) {
           required
         />
 
-        {/* Password */}
-        <Input
-          id="password"
-          type={showPassword ? 'text' : 'password'}
-          label="Password"
-          placeholder="••••••••••••"
-          value={formData.password}
-          onChange={handleChange('password')}
-          error={errors.password}
-          required
-          suffix={
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          }
-        />
+        {/* Workspace Slug Collision Interactive Action Card */}
+        {slugStatus.exists && (
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-3 transition-all duration-200">
+            <div className="flex items-start gap-2.5">
+              <span className="text-amber-400 text-sm leading-none mt-0.5">⚠️</span>
+              <div className="text-xs text-zinc-300 leading-relaxed">
+                <span className="font-semibold text-white">
+                  "{slugStatus.companyName || formData.workspaceSlug}"
+                </span>{' '}
+                is already registered.
+              </div>
+            </div>
 
-        {/* Confirm Password */}
-        <Input
-          id="confirmPassword"
-          type={showConfirmPassword ? 'text' : 'password'}
-          label="Confirm Password"
-          placeholder="••••••••••••"
-          value={formData.confirmPassword}
-          onChange={handleChange('confirmPassword')}
-          error={errors.confirmPassword}
-          required
-          suffix={
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
-            >
-              {showConfirmPassword ? 'Hide' : 'Show'}
-            </button>
-          }
-        />
+            <div className="text-xs text-zinc-400">
+              Want to join this workspace?
+            </div>
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={isSubmitting || !isEmailVerified}
-          className="w-full justify-center py-2.5 text-sm font-semibold shadow-sm mt-2 group"
-        >
-          {isSubmitting ? (
-            <span>Creating workspace...</span>
-          ) : (
-            <span className="inline-flex items-center gap-2 font-semibold text-black">
-              <span>Create Workspace</span>
-              <svg
-                className="w-4 h-4 shrink-0 text-black transition-transform duration-200 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24"
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Link
+                to={`/login?workspace=${encodeURIComponent(formData.workspaceSlug)}`}
+                className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white border border-zinc-700 transition"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </span>
-          )}
-        </Button>
+                Sign In
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsRequestAccessOpen(true)}
+                className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-xs font-semibold text-black transition"
+              >
+                Request Access
+              </button>
+            </div>
 
-        {/* Micro-copy terms */}
-        <p className="text-[11px] text-zinc-500 text-center">
-          By continuing, you register as the primary workspace administrator.
-        </p>
+            <p className="text-[11px] text-zinc-500 leading-normal">
+              Or pick a different workspace URL above to create a new team.
+            </p>
+          </div>
+        )}
+
+        {/* Downstream Credentials & Creation (Soft-locked when slug is taken) */}
+        <div
+          className={`space-y-4 transition-all duration-300 ${
+            slugStatus.exists
+              ? 'opacity-30 pointer-events-none select-none grayscale'
+              : 'opacity-100'
+          }`}
+        >
+          {/* Password */}
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            label="Password"
+            placeholder="••••••••••••"
+            value={formData.password}
+            onChange={handleChange('password')}
+            error={errors.password}
+            required
+            suffix={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            }
+          />
+
+          {/* Confirm Password */}
+          <Input
+            id="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            label="Confirm Password"
+            placeholder="••••••••••••"
+            value={formData.confirmPassword}
+            onChange={handleChange('confirmPassword')}
+            error={errors.confirmPassword}
+            required
+            suffix={
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </button>
+            }
+          />
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isSubmitting || !isEmailVerified || slugStatus.exists}
+            className="w-full justify-center py-2.5 text-sm font-semibold shadow-sm mt-2 group"
+          >
+            {isSubmitting ? (
+              <span>Creating workspace...</span>
+            ) : (
+              <span className="inline-flex items-center gap-2 font-semibold text-black">
+                <span>Create Workspace</span>
+                <svg
+                  className="w-4 h-4 shrink-0 text-black transition-transform duration-200 group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </span>
+            )}
+          </Button>
+
+          {/* Micro-copy terms */}
+          <p className="text-[11px] text-zinc-500 text-center">
+            By continuing, you register as the primary workspace administrator.
+          </p>
+        </div>
       </form>
 
       {/* Switch to Login Link & Quiet Return to Home */}
       <div className="pt-2 text-center text-xs text-zinc-400 border-t border-zinc-900 space-y-2">
-        <p>
-          Already have a workspace?{' '}
-          <Link to="/login" className="font-medium text-white hover:underline transition">
-            Log In
-          </Link>
-        </p>
+        {!slugStatus.exists && (
+          <p>
+            Already have a workspace?{' '}
+            <Link to="/login" className="font-medium text-white hover:underline transition">
+              Sign In
+            </Link>
+          </p>
+        )}
 
         <div>
           <Link

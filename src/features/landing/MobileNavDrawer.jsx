@@ -87,7 +87,7 @@ export function MobileNavDrawer({
           <div className="space-y-2">
             <Link to="/login" onClick={onClose} className="block">
               <Button variant="secondary" className="w-full justify-center text-xs py-2 font-medium">
-                Log In
+                Sign In
               </Button>
             </Link>
             <Link to="/register" onClick={onClose} className="block">
