@@ -32,7 +32,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#09090b]/85 backdrop-blur-2xl">
-      <div className="mx-auto flex h-12 sm:h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-12 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-4">
         
         {/* Clean Standard Brand Logo */}
         <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">

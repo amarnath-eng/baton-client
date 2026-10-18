@@ -44,14 +44,13 @@ export function MobileNavDrawer({
               <p className="text-xs text-zinc-400 font-mono truncate leading-normal mt-0.5">
                 {user?.email}
               </p>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-300 truncate">
-                  {company?.name || 'Workspace'}
+              <div className="mt-2.5 flex items-center gap-2">
+                <span className="text-[11px] font-mono tracking-wide text-zinc-300 truncate lowercase">
+                  {company?.slug || company?.name?.toLowerCase() || 'workspace'}
                 </span>
-                <span className="text-zinc-600">·</span>
-                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
-                  <span>{role || 'member'}</span>
+                <span className="text-zinc-700 text-xs select-none">|</span>
+                <span className="text-[11px] font-mono tracking-wide text-emerald-400 font-medium capitalize">
+                  {role || 'member'}
                 </span>
               </div>
             </div>

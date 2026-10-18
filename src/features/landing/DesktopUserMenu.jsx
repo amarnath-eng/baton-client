@@ -63,14 +63,30 @@ export function DesktopUserMenu({ user, company, role, onLogout }) {
         <button
           type="button"
           onClick={() => setUserMenuOpen((prev) => !prev)}
-          className={`flex h-8 w-8 items-center justify-center rounded-xl font-mono text-xs font-semibold transition cursor-pointer shadow-sm ${
-            userMenuOpen
-              ? 'border-white/30 bg-zinc-800 text-white ring-2 ring-white/10'
-              : 'border border-zinc-700/80 bg-zinc-800 text-zinc-200 hover:border-zinc-500 hover:text-white'
-          }`}
+          className="group flex items-center gap-1.5 p-0.5 rounded-xl transition cursor-pointer"
           aria-label="User profile menu"
+          aria-expanded={userMenuOpen}
+          aria-haspopup="true"
         >
-          {initials}
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl font-mono text-xs font-semibold transition shadow-sm ${
+              userMenuOpen
+                ? 'border-white/30 bg-zinc-800 text-white ring-2 ring-white/10'
+                : 'border border-zinc-700/80 bg-zinc-800 text-zinc-200 group-hover:border-zinc-500 group-hover:text-white'
+            }`}
+          >
+            {initials}
+          </div>
+          <svg
+            className={`w-3 h-3 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-200 ${
+              userMenuOpen ? 'rotate-180 text-white' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
         </button>
 
         {userMenuOpen && (
@@ -83,14 +99,13 @@ export function DesktopUserMenu({ user, company, role, onLogout }) {
               <p className="text-xs text-zinc-400 font-mono whitespace-nowrap leading-normal mt-0.5">
                 {user?.email}
               </p>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-300 whitespace-nowrap">
-                  {company?.name || 'Workspace'}
+              <div className="mt-2.5 flex items-center gap-2">
+                <span className="text-[11px] font-mono tracking-wide text-zinc-300 whitespace-nowrap lowercase">
+                  {company?.slug || company?.name?.toLowerCase() || 'workspace'}
                 </span>
-                <span className="text-zinc-600">·</span>
-                <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
-                  <span>{role || 'member'}</span>
+                <span className="text-zinc-700 text-xs select-none">|</span>
+                <span className="text-[11px] font-mono tracking-wide text-emerald-400 font-medium capitalize">
+                  {role || 'member'}
                 </span>
               </div>
             </div>
