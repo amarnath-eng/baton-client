@@ -1,17 +1,25 @@
 import { useState, useEffect } from 'react'
-import { sendOtpApi, verifyOtpApi } from '../../services/authApi.js'
+import { sendOtpApi, verifyOtpApi } from '../../../services/authApi.js'
 
 /**
  * Headless Hook: Finite State Machine for Email OTP Verification
  * Statuses: 'idle' | 'sending' | 'sent' | 'verifying' | 'verified' | 'locked'
  */
-export function useEmailOtp(email, onVerified) {
-  const [status, setStatus] = useState('idle')
+export function useEmailOtp(email, onVerified, initialToken = null) {
+  const [status, setStatus] = useState(initialToken ? 'verified' : 'idle')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState(initialToken ? 'Email verified successfully!' : '')
   const [cooldown, setCooldown] = useState(0)
   const [remainingResends, setRemainingResends] = useState(3)
+
+  // Sync initialToken if provided or updated
+  useEffect(() => {
+    if (initialToken) {
+      setStatus('verified')
+      setSuccessMessage('Email verified successfully!')
+    }
+  }, [initialToken])
 
   // 60-second cooldown timer countdown
   useEffect(() => {

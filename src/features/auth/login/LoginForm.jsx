@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { Input } from '../../components/ui/Input.jsx'
-import { Button } from '../../components/ui/Button.jsx'
-import { loginApi } from '../../services/authApi.js'
-import { setCredentials } from '../../store/authSlice.js'
+import { Input } from '../../../components/ui/Input.jsx'
+import { Button } from '../../../components/ui/Button.jsx'
+import { loginApi } from '../../../services/authApi.js'
+import { setCredentials } from '../../../store/authSlice.js'
 
 export function LoginForm({ onSubmitSuccess }) {
   const navigate = useNavigate()
@@ -19,7 +19,13 @@ export function LoginForm({ onSubmitSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+    let val = e.target.value
+    if (field === 'email') {
+      val = val.replace(/\s+/g, '')
+    } else if (field === 'password') {
+      val = val.replace(/^\s+/, '')
+    }
+    setFormData((prev) => ({ ...prev, [field]: val }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
     if (errors.form) setErrors((prev) => ({ ...prev, form: '' }))
   }
@@ -85,7 +91,7 @@ export function LoginForm({ onSubmitSuccess }) {
       </div>
 
       {/* Login Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 pt-1" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1" noValidate autoComplete="off">
         {errors.form && (
           <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400 text-left">
             {errors.form}
@@ -97,7 +103,7 @@ export function LoginForm({ onSubmitSuccess }) {
           id="email"
           type="email"
           label="Work Email"
-          placeholder="amarnath@company.com"
+          placeholder="name@company.com"
           value={formData.email}
           onChange={handleChange('email')}
           error={errors.email}
@@ -118,7 +124,7 @@ export function LoginForm({ onSubmitSuccess }) {
           <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••••••"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange('password')}
             error={errors.password}

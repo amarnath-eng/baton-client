@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { Badge } from '../../components/ui/Badge.jsx'
+import { Badge } from '../../../components/ui/Badge.jsx'
 
 // Left 50% split panel with centered cohesive layout and uniform tight spacing
-export function RegisterBrandingPanel() {
+export function AuthBrandingPanel() {
   return (
     <div className="hidden lg:flex lg:w-1/2 lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden flex-col justify-center items-center border-r border-zinc-800/80 bg-[#070709] p-8 xl:p-12 relative">
       {/* Subtle ambient lighting for depth */}
