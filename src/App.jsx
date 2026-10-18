@@ -8,6 +8,7 @@ import LandingPage from './pages/LandingPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
 
 // Root layout that renders active child route and restores scroll to top
 function RootLayout() {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <LandingPage />,
+      },
+      {
+        path: '/invite/accept',
+        element: <AcceptInvitePage />,
       },
 
       // 2. Guest-only (bounced to /dashboard if already logged in)
