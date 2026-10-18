@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api/companies'
+import { request } from './apiClient.js'
 
 /**
  * Checks whether a workspace slug already exists
@@ -10,18 +10,18 @@ export async function checkSlugApi(slug) {
     return { exists: false, slug: '' }
   }
 
-  const res = await fetch(`${API_BASE}/check-slug/${encodeURIComponent(slug.trim())}`, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  return request(`/companies/check-slug/${encodeURIComponent(slug.trim())}`, {
+    defaultError: 'Failed to check workspace slug.',
   })
-
-  const json = await res.json()
-
-  if (!res.ok || !json?.success) {
-    throw new Error(json?.message || 'Failed to check workspace slug')
-  }
-
-  return json?.data ?? {}
 }
+
+/**
+ * Fetch active members for current workspace
+ */
+export async function getCompanyMembersApi() {
+  const data = await request('/companies/members', {
+    defaultError: 'Failed to fetch workspace members.',
+  })
+  return data?.members ?? []
+}
+

@@ -1,60 +1,46 @@
-const API_BASE = 'http://localhost:5000/api/auth'
-
-/**
- * Centralized HTTP request helper
- * Automatically includes credentials (cookies) on all requests
- */
-async function request(endpoint, { headers, ...options } = {}) {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    credentials: 'include',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  })
-
-  const json = await res.json()
-
-  if (!res.ok || !json?.success) throw new Error(json?.message || 'Something went wrong')
-
-  return json?.data ?? {}
-}
+import { request } from './apiClient.js'
 
 export async function sendOtpApi(email) {
-  return request('/send-otp', {
+  return request('/auth/send-otp', {
     method: 'POST',
     body: JSON.stringify({ email }),
+    defaultError: 'Failed to send verification code.',
   })
 }
 
 export async function verifyOtpApi(email, otp) {
-  return request('/verify-otp', {
+  return request('/auth/verify-otp', {
     method: 'POST',
     body: JSON.stringify({ email, otp }),
+    defaultError: 'Failed to verify OTP code.',
   })
 }
 
 export async function registerApi(payload) {
-  return request('/register', {
+  return request('/auth/register', {
     method: 'POST',
     body: JSON.stringify(payload),
+    defaultError: 'Registration failed.',
   })
 }
 
 export async function loginApi(payload) {
-  return request('/login', {
+  return request('/auth/login', {
     method: 'POST',
     body: JSON.stringify(payload),
+    defaultError: 'Login failed.',
   })
 }
 
 export async function getMeApi() {
-  return request('/me')
+  return request('/auth/me', {
+    defaultError: 'Failed to retrieve session.',
+  })
 }
 
 export async function logoutApi() {
-  return request('/logout', {
+  return request('/auth/logout', {
     method: 'POST',
+    defaultError: 'Logout failed.',
   })
 }
