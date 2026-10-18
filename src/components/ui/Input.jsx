@@ -12,6 +12,7 @@ export function Input({
   prefix,
   suffix,
   className = '',
+  autoComplete = 'off',
   ...props
 }) {
   return (
@@ -40,7 +41,8 @@ export function Input({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className="w-full bg-transparent text-sm text-white placeholder-zinc-500 outline-none"
+          autoComplete={autoComplete}
+          className="w-full bg-transparent text-sm text-white placeholder-zinc-600 outline-none"
           {...props}
         />
 
