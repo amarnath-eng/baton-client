@@ -1,6 +1,7 @@
 // Reusable dark monochrome input primitive with label, prefix, suffix, and error handling
 export function Input({
   label,
+  labelAction,
   id,
   type = 'text',
   placeholder,
@@ -18,9 +19,12 @@ export function Input({
   return (
     <div className="w-full space-y-1.5 text-left">
       {label && (
-        <label htmlFor={id} className="block text-xs font-medium text-zinc-300">
-          {label} {required && <span className="text-rose-400">*</span>}
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor={id} className="block text-xs font-medium text-zinc-300">
+            {label} {required && <span className="text-rose-400">*</span>}
+          </label>
+          {labelAction}
+        </div>
       )}
 
       <div

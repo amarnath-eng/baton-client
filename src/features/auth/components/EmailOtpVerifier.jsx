@@ -72,6 +72,17 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
         id="email"
         type="email"
         label="Work Email"
+        labelAction={
+          isVerified || isCodeSent ? (
+            <button
+              type="button"
+              onClick={handleChangeEmail}
+              className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none"
+            >
+              Change email
+            </button>
+          ) : null
+        }
         placeholder="name@company.com"
         value={email}
         onChange={handleEmailInput}
@@ -82,28 +93,13 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
         readOnly={isReadOnly}
         suffix={
           isVerified ? (
-            <div className="flex items-center gap-1.5 pr-0.5">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Verified
-              </span>
-              <button
-                type="button"
-                onClick={handleChangeEmail}
-                className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-2 py-1 rounded-lg transition active:scale-95 cursor-pointer select-none"
-              >
-                Change
-              </button>
-            </div>
-          ) : isCodeSent ? (
-            <button
-              type="button"
-              onClick={handleChangeEmail}
-              className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-lg transition active:scale-95 cursor-pointer select-none"
-            >
-              Change
-            </button>
-          ) : (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shadow-sm select-none">
+              <svg className="w-3 h-3 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Verified</span>
+            </span>
+          ) : isCodeSent ? null : (
             <button
               type="button"
               onClick={sendOtp}
