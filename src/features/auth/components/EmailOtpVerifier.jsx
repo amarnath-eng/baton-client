@@ -67,63 +67,87 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
 
   return (
     <div className="space-y-3">
-      {/* 1. Email Field with clean Button Suffix (Zero Underlines) */}
-      <Input
-        id="email"
-        type="email"
-        label="Work Email"
-        labelAction={
-          isVerified || isCodeSent ? (
+      {/* 1. Email Field or Verified Identity Tile (Industry Standard: Clerk / Linear / Stripe) */}
+      {isVerified ? (
+        <div className="space-y-1.5 text-left animate-in fade-in duration-200">
+          <label className="block text-xs font-medium text-zinc-300">
+            Work Email <span className="text-rose-400">*</span>
+          </label>
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 shadow-sm">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-zinc-100 truncate">
+                {email}
+              </span>
+              <span className="inline-flex items-center text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">
+                Verified
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none"
+              className="text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 px-2.5 py-1 rounded-lg transition-colors cursor-pointer select-none shrink-0 ml-2"
             >
-              Change email
+              Change
             </button>
-          ) : null
-        }
-        placeholder="name@company.com"
-        value={email}
-        onChange={handleEmailInput}
-        onKeyDown={handleEmailKeyDown}
-        onPaste={handleEmailPaste}
-        error={fieldError || (!isCodeSent ? error : '')}
-        required
-        readOnly={isReadOnly}
-        suffix={
-          isVerified ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shadow-sm select-none">
-              <svg className="w-3 h-3 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Verified</span>
-            </span>
-          ) : isCodeSent ? null : (
-            <button
-              type="button"
-              onClick={sendOtp}
-              disabled={status === 'sending' || cooldown > 0 || isLocked || !email?.trim()}
-              className={`inline-flex items-center justify-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-lg border transition-all cursor-pointer select-none ${
-                status === 'sending' || cooldown > 0 || isLocked || !email?.trim()
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-500 cursor-not-allowed opacity-60'
-                  : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700/80 hover:text-white hover:border-zinc-600 active:scale-95 shadow-sm'
-              }`}
-            >
-              {status === 'sending' ? (
-                <>
-                  <span className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
-                  <span>Sending...</span>
-                </>
-              ) : cooldown > 0 ? (
-                `Wait ${formattedCooldown}`
-              ) : (
-                'Send Code'
-              )}
-            </button>
-          )
-        }
-      />
+          </div>
+        </div>
+      ) : (
+        <Input
+          id="email"
+          type="email"
+          label="Work Email"
+          labelAction={
+            isCodeSent ? (
+              <button
+                type="button"
+                onClick={handleChangeEmail}
+                className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none"
+              >
+                Change email
+              </button>
+            ) : null
+          }
+          placeholder="name@company.com"
+          value={email}
+          onChange={handleEmailInput}
+          onKeyDown={handleEmailKeyDown}
+          onPaste={handleEmailPaste}
+          error={fieldError || (!isCodeSent ? error : '')}
+          required
+          readOnly={isReadOnly}
+          suffix={
+            isCodeSent ? null : (
+              <button
+                type="button"
+                onClick={sendOtp}
+                disabled={status === 'sending' || cooldown > 0 || isLocked || !email?.trim()}
+                className={`inline-flex items-center justify-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-lg border transition-all cursor-pointer select-none ${
+                  status === 'sending' || cooldown > 0 || isLocked || !email?.trim()
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-500 cursor-not-allowed opacity-60'
+                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700/80 hover:text-white hover:border-zinc-600 active:scale-95 shadow-sm'
+                }`}
+              >
+                {status === 'sending' ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
+                    <span>Sending...</span>
+                  </>
+                ) : cooldown > 0 ? (
+                  `Wait ${formattedCooldown}`
+                ) : (
+                  'Send Code'
+                )}
+              </button>
+            )
+          }
+        />
+      )}
 
       {/* 2. Enterprise Segmented 6-Digit PIN Box */}
       {isCodeSent && !isVerified && (
