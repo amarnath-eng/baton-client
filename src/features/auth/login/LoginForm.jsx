@@ -21,7 +21,7 @@ export function LoginForm({ onSubmitSuccess }) {
   const handleChange = (field) => (e) => {
     let val = e.target.value
     if (field === 'email') {
-      val = val.replace(/\s+/g, '')
+      val = val.replace(/\s+/g, '').toLowerCase()
     } else if (field === 'password') {
       val = val.replace(/^\s+/, '')
     }
@@ -106,6 +106,11 @@ export function LoginForm({ onSubmitSuccess }) {
           placeholder="name@company.com"
           value={formData.email}
           onChange={handleChange('email')}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) {
+              e.preventDefault()
+            }
+          }}
           error={errors.email}
           required
         />

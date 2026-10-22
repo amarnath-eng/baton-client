@@ -1,5 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { sendOtpApi, verifyOtpApi } from '../../../services/authApi.js'
+
+export function formatCooldownTime(seconds) {
+  if (seconds <= 0) return ''
+  if (seconds <= 60) {
+    return `${seconds}s`
+  }
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  if (s === 0) {
+    return `${m}m`
+  }
+  return `${m}m ${s < 10 ? '0' : ''}${s}s`
+}
 
 /**
  * Headless Hook: Finite State Machine for Email OTP Verification
@@ -12,6 +25,8 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
   const [successMessage, setSuccessMessage] = useState(initialToken ? 'Email verified successfully!' : '')
   const [cooldown, setCooldown] = useState(0)
   const [remainingResends, setRemainingResends] = useState(3)
+  const [isResending, setIsResending] = useState(false)
+  const prevCooldownRef = useRef(0)
 
   // Sync initialToken if provided or updated
   useEffect(() => {
@@ -21,12 +36,28 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     }
   }, [initialToken])
 
-  // 60-second cooldown timer countdown
+  // Cooldown countdown timer with auto-clear only when a timer naturally expires
   useEffect(() => {
-    if (cooldown <= 0) return
-    const timer = setInterval(() => setCooldown((prev) => prev - 1), 1000)
+    if (cooldown <= 0) {
+      if (prevCooldownRef.current > 0) {
+        if (error && (error.includes('before requesting a new code') || error.includes('limit reached') || error.includes('Too many'))) {
+          setError('')
+        }
+        if (status === 'locked') {
+          setStatus('sent')
+          setRemainingResends(3)
+        }
+      }
+      prevCooldownRef.current = 0
+      return
+    }
+
+    prevCooldownRef.current = cooldown
+    const timer = setInterval(() => {
+      setCooldown((prev) => Math.max(0, prev - 1))
+    }, 1000)
     return () => clearInterval(timer)
-  }, [cooldown])
+  }, [cooldown, error, status])
 
   // Reset verification state when email changes
   const reset = () => {
@@ -35,6 +66,7 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     setError('')
     setSuccessMessage('')
     setCooldown(0)
+    setIsResending(false)
   }
 
   // Dispatch OTP
@@ -42,30 +74,74 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email || !emailRegex.test(email.trim())) {
       setError('Please enter a valid work email first')
-      return
+      return false
     }
 
-    try {
+    const isFirstSend = status === 'idle'
+    if (isFirstSend) {
       setStatus('sending')
-      setError('')
+    } else {
+      setIsResending(true)
+    }
+    setError('')
+
+    try {
       const data = await sendOtpApi(email)
+      const remaining = typeof data?.remainingResends === 'number' ? data.remainingResends : 2
+      const secs = typeof data?.remainingSeconds === 'number' ? data.remainingSeconds : (remaining === 0 ? 600 : 60)
+      setRemainingResends(remaining)
+      setCooldown(secs)
       setStatus('sent')
-      setCooldown(60)
-      setRemainingResends(data?.remainingResends ?? 2)
+      setIsResending(false)
       setSuccessMessage('Verification code sent to your email.')
+      return true
     } catch (err) {
-      setError(err.message)
-      if (err.message.includes('Too many') || err.message.includes('Maximum')) {
-        setStatus('locked')
-      } else {
-        setStatus('idle')
+      setIsResending(false)
+      const errPayload = err.errors || err.data || {}
+      if (typeof errPayload.remainingResends === 'number') {
+        setRemainingResends(errPayload.remainingResends)
       }
+
+      const waitMatch = err.message?.match(/Please wait (\d+)s/i)
+      const secs =
+        errPayload.remainingSeconds ||
+        (errPayload.minutesRemaining ? errPayload.minutesRemaining * 60 : 0) ||
+        (waitMatch ? parseInt(waitMatch[1], 10) : 0)
+
+      if (secs > 0) {
+        setCooldown(secs)
+      }
+
+      const isAttemptLockout =
+        errPayload.locked ||
+        err.message?.includes('Too many failed') ||
+        err.message?.includes('Too many incorrect')
+
+      const isResendRateLimit =
+        !isAttemptLockout &&
+        (err.message?.includes('limit reached') ||
+         err.message?.includes('before requesting') ||
+         err.message?.includes('Maximum'))
+
+      if (isAttemptLockout) {
+        setStatus('locked')
+        setRemainingResends(0)
+        setError(err.message)
+      } else if (isResendRateLimit) {
+        setError('')
+        setStatus(status === 'idle' ? 'idle' : 'sent')
+      } else {
+        setError(err.message)
+        setStatus(status === 'idle' ? 'idle' : 'sent')
+      }
+      return false
     }
   }
 
   // Verify OTP
-  const verifyOtp = async () => {
-    if (otp.length !== 6) {
+  const verifyOtp = async (overrideOtp) => {
+    const code = (typeof overrideOtp === 'string' ? overrideOtp : otp).trim()
+    if (code.length !== 6) {
       setError('Please enter the 6-digit code')
       return
     }
@@ -73,27 +149,52 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     try {
       setStatus('verifying')
       setError('')
-      const data = await verifyOtpApi(email, otp)
+      const data = await verifyOtpApi(email, code)
       setStatus('verified')
       setSuccessMessage('Email verified successfully!')
       onVerified?.(data?.verificationToken)
     } catch (err) {
       setError(err.message)
-      if (err.message.includes('Too many')) {
+      const errPayload = err.errors || err.data || {}
+      if (errPayload.locked || err.message?.includes('Too many')) {
         setStatus('locked')
+        setRemainingResends(0)
+        const secs =
+          errPayload.remainingSeconds ||
+          (errPayload.minutesRemaining ? errPayload.minutesRemaining * 60 : 0) ||
+          600
+        if (secs > 0) {
+          setCooldown(secs)
+        }
       } else {
         setStatus('sent')
       }
     }
   }
 
+  const displayError = (() => {
+    if (
+      !error ||
+      error.includes('before requesting a new code') ||
+      error.includes('Maximum OTP resend limit reached')
+    ) {
+      return ''
+    }
+    if (cooldown > 0 && (error.includes('Too many failed') || error.includes('Too many incorrect'))) {
+      return `Too many failed attempts. Please try again in ${formatCooldownTime(cooldown)}.`
+    }
+    return error
+  })()
+
   return {
     status,
+    isResending,
     otp,
     setOtp,
-    error,
+    error: displayError,
     successMessage,
     cooldown,
+    formattedCooldown: formatCooldownTime(cooldown),
     remainingResends,
     sendOtp,
     verifyOtp,

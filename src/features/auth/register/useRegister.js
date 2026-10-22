@@ -40,7 +40,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
   }
 
   const handleEmailChange = (e) => {
-    const cleanEmail = e.target.value.replace(/\s+/g, '')
+    const cleanEmail = e.target.value.replace(/\s+/g, '').toLowerCase()
     setFormData((prev) => ({ ...prev, email: cleanEmail }))
     setVerificationToken(null)
     if (errors.email) setErrors((prev) => ({ ...prev, email: '' }))

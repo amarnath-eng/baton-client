@@ -13,7 +13,10 @@ export async function request(endpoint, { headers, defaultError = 'Something wen
   const json = await res.json()
 
   if (!res.ok || !json?.success) {
-    throw new Error(json?.message || defaultError)
+    const err = new Error(json?.message || defaultError)
+    err.errors = json?.errors || null
+    err.status = res.status
+    throw err
   }
 
   return json?.data ?? {}
