@@ -37,10 +37,6 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
         if (!isActive) return
 
         setMembers(data)
-        if (data.length >= 2) {
-          setOutgoingEngineerId(data[0].id)
-          setIncomingEngineerId(data[1].id)
-        }
       } catch (err) {
         if (!isActive) return
         setError(err?.message || 'Failed to load workspace members.')
@@ -184,6 +180,9 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
                   disabled={loadingMembers}
                   className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:border-zinc-500 focus:outline-none"
                 >
+                  <option value="" disabled className="bg-zinc-900 text-zinc-500">
+                    Select outgoing engineer...
+                  </option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id} className="bg-zinc-900 text-white">
                       {m.fullName} ({m.role})
@@ -202,6 +201,9 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
                   disabled={loadingMembers}
                   className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-white focus:border-zinc-500 focus:outline-none"
                 >
+                  <option value="" disabled className="bg-zinc-900 text-zinc-500">
+                    Select incoming engineer...
+                  </option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id} className="bg-zinc-900 text-white">
                       {m.fullName} ({m.role})
