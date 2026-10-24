@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button.jsx'
+import { ROUTES } from '../../routes/paths.js'
 
 export function DesktopUserMenu({ user, company, role, onLogout }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -40,7 +41,7 @@ export function DesktopUserMenu({ user, company, role, onLogout }) {
   return (
     <div className="flex items-center gap-2.5">
       {/* Primary Workspace CTA */}
-      <Link to="/dashboard">
+      <Link to={ROUTES.DASHBOARD}>
         <Button
           variant="primary"
           size="sm"

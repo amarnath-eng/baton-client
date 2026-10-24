@@ -5,6 +5,7 @@ import { checkAuthSession } from '../../store/authSlice.js'
 import { verifyInviteTokenApi, acceptInviteApi } from '../../services/invitationApi.js'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
+import { ROUTES } from '../../routes/paths.js'
 
 export function AcceptInviteCard() {
   const [searchParams] = useSearchParams()
@@ -73,7 +74,7 @@ export function AcceptInviteCard() {
 
       // Refresh auth state in Redux store
       await dispatch(checkAuthSession())
-      navigate('/dashboard')
+      navigate(ROUTES.DASHBOARD)
     } catch (err) {
       setSubmitError(err.message || 'Failed to accept invitation.')
     } finally {
@@ -110,13 +111,13 @@ export function AcceptInviteCard() {
         </div>
         <div className="pt-2 space-y-2.5">
           <Link
-            to="/login"
+            to={ROUTES.LOGIN}
             className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition"
           >
             Sign In to Existing Account
           </Link>
           <Link
-            to="/register"
+            to={ROUTES.REGISTER}
             className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 text-xs font-medium hover:bg-zinc-800 hover:text-white transition"
           >
             Register a New Workspace
@@ -267,7 +268,7 @@ export function AcceptInviteCard() {
       {/* Footer info */}
       <p className="text-center text-[11px] text-zinc-600">
         Already a member of another workspace?{' '}
-        <Link to="/login" className="text-zinc-400 hover:text-white underline">
+        <Link to={ROUTES.LOGIN} className="text-zinc-400 hover:text-white underline">
           Sign In
         </Link>
       </p>

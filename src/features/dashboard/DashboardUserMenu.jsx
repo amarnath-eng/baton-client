@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logoutUser } from '../../store/authSlice.js'
+import { ROUTES } from '../../routes/paths.js'
 
 export default function DashboardUserMenu({ isOverflowing = false }) {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user, company, role } = useSelector((state) => state.auth)
   const [open, setOpen] = useState(false)
@@ -94,6 +97,7 @@ export default function DashboardUserMenu({ isOverflowing = false }) {
             type="button"
             onClick={() => {
               setOpen(false)
+              navigate(ROUTES.HOME, { replace: true })
               dispatch(logoutUser())
             }}
             className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition cursor-pointer"

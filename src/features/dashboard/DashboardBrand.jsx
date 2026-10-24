@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { ROUTES } from '../../routes/paths.js'
 
 export default function DashboardBrand({ isOverflowing, onOverflowChange }) {
   const { company, role } = useSelector((state) => state.auth)
@@ -52,8 +53,8 @@ export default function DashboardBrand({ isOverflowing, onOverflowChange }) {
       {/* Column 1 Brand Container */}
       <div ref={firstColRef} className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {isOverflowing ? (
-          /* Fallback to Landing Page branding when workspace text overflows > 75% */
-          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0" title="Back to Baton Home">
+          /* Fallback to workspace branding when text overflows > 75% */
+          <Link to={ROUTES.DASHBOARD} className="flex items-center gap-2.5 sm:gap-3 group shrink-0" title="Back to Dashboard">
             <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg sm:rounded-xl bg-white font-extrabold text-black text-xs sm:text-sm shadow-sm shrink-0">
               B
             </div>
@@ -74,7 +75,7 @@ export default function DashboardBrand({ isOverflowing, onOverflowChange }) {
         ) : (
           /* Workspace Breadcrumb when within 75% */
           <>
-            <Link to="/" className="group shrink-0" title="Back to Baton Home">
+            <Link to={ROUTES.DASHBOARD} className="group shrink-0" title="Back to Dashboard">
               <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg sm:rounded-xl bg-white font-extrabold text-black text-xs sm:text-sm shadow-sm group-hover:bg-zinc-200 transition-colors shrink-0">
                 B
               </div>

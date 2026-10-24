@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '../../routes/paths.js'
 import { useSelector, useDispatch } from 'react-redux'
 import { Button } from '../../components/ui/Button.jsx'
 import { logoutUser, AUTH_STATUS } from '../../store/authSlice.js'
@@ -35,7 +36,7 @@ export function Navbar() {
       <div className="mx-auto flex h-12 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-4">
         
         {/* Clean Standard Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+        <Link to={ROUTES.HOME} className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
           <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg sm:rounded-xl bg-white font-extrabold text-black text-xs sm:text-sm shadow-sm shrink-0">
             B
           </div>
@@ -81,12 +82,12 @@ export function Navbar() {
           ) : (
             <>
               <Link
-                to="/login"
+                to={ROUTES.LOGIN}
                 className="text-xs font-medium text-zinc-400 hover:text-white px-2.5 py-1.5 transition cursor-pointer rounded-lg hover:bg-zinc-900/60"
               >
                 Sign In
               </Link>
-              <Link to="/register">
+              <Link to={ROUTES.REGISTER}>
                 <Button
                   variant="primary"
                   className="text-xs px-3.5 py-1.5 font-medium shadow-[0_0_15px_rgba(255,255,255,0.15)]"

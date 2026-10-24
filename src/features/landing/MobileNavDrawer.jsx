@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button.jsx'
+import { ROUTES } from '../../routes/paths.js'
 
 export function MobileNavDrawer({
   isOpen,
@@ -56,7 +57,7 @@ export function MobileNavDrawer({
             </div>
 
             {/* Full-width Open Baton Button */}
-            <Link to="/dashboard" onClick={onClose} className="block w-full">
+            <Link to={ROUTES.DASHBOARD} className="block w-full">
               <Button
                 variant="primary"
                 className="w-full justify-center text-xs py-2.5 font-medium shadow-[0_0_15px_rgba(255,255,255,0.15)]"
@@ -84,12 +85,12 @@ export function MobileNavDrawer({
           </div>
         ) : (
           <div className="space-y-2">
-            <Link to="/login" onClick={onClose} className="block">
+            <Link to={ROUTES.LOGIN} className="block">
               <Button variant="secondary" className="w-full justify-center text-xs py-2 font-medium">
                 Sign In
               </Button>
             </Link>
-            <Link to="/register" onClick={onClose} className="block">
+            <Link to={ROUTES.REGISTER} className="block">
               <Button variant="primary" className="w-full justify-center text-xs py-2 font-medium">
                 Get Started
               </Button>
