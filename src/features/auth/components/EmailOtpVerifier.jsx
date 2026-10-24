@@ -3,12 +3,13 @@ import { Input } from '../../../components/ui/Input.jsx'
 import { OtpInput } from '../../../components/ui/OtpInput.jsx'
 import { useEmailOtp } from '../hooks/useEmailOtp.js'
 
-export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError, initialToken = null }) {
+export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError, initialToken = null, compact = false, sendOtpFn = null }) {
   const {
     status,
     isResending,
     otp,
     setOtp,
+    isVerifyDisabled,
     error,
     cooldown,
     formattedCooldown,
@@ -16,7 +17,7 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
     sendOtp,
     verifyOtp,
     reset,
-  } = useEmailOtp(email, onVerified, initialToken)
+  } = useEmailOtp(email, onVerified, initialToken, sendOtpFn)
 
   const [hasResent, setHasResent] = useState(false)
 
@@ -34,6 +35,15 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
     // Strictly forbid spacebar key press anywhere in email
     if (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) {
       e.preventDefault()
+      return
+    }
+
+    // Trigger OTP dispatch when hitting Enter in the email box
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (!isCodeSent && !isVerified && status !== 'sending' && cooldown === 0 && !isLocked && email?.trim()) {
+        sendOtp()
+      }
     }
   }
 
@@ -83,17 +93,18 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
               <span className="text-sm font-medium text-zinc-100 truncate">
                 {email}
               </span>
-              <span className="inline-flex items-center text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 shrink-0">
-                Verified
-              </span>
             </div>
 
             <button
               type="button"
               onClick={handleChangeEmail}
-              className="text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 px-2.5 py-1 rounded-lg transition-colors cursor-pointer select-none shrink-0 ml-2"
+              title="Change email"
+              aria-label="Change email"
+              className="w-7 h-7 rounded-lg bg-zinc-850 hover:bg-zinc-750 active:bg-zinc-700 border border-zinc-700/70 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all shadow-xs cursor-pointer select-none shrink-0 ml-2"
             >
-              Change
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
             </button>
           </div>
         </div>
@@ -102,17 +113,6 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
           id="email"
           type="email"
           label="Work Email"
-          labelAction={
-            isCodeSent ? (
-              <button
-                type="button"
-                onClick={handleChangeEmail}
-                className="text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none"
-              >
-                Change email
-              </button>
-            ) : null
-          }
           placeholder="name@company.com"
           value={email}
           onChange={handleEmailInput}
@@ -122,15 +122,29 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
           required
           readOnly={isReadOnly}
           suffix={
-            isCodeSent ? null : (
+            isCodeSent ? (
+              <button
+                type="button"
+                onClick={handleChangeEmail}
+                title="Change email"
+                aria-label="Change email"
+                className="w-7 h-7 rounded-lg bg-zinc-850 hover:bg-zinc-750 active:bg-zinc-700 border border-zinc-700/70 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all shadow-xs cursor-pointer select-none shrink-0"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            ) : (
               <button
                 type="button"
                 onClick={sendOtp}
                 disabled={status === 'sending' || cooldown > 0 || isLocked || !email?.trim()}
-                className={`inline-flex items-center justify-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-lg border transition-all cursor-pointer select-none ${
-                  status === 'sending' || cooldown > 0 || isLocked || !email?.trim()
-                    ? 'bg-zinc-900 border-zinc-800 text-zinc-500 cursor-not-allowed opacity-60'
-                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700/80 hover:text-white hover:border-zinc-600 active:scale-95 shadow-sm'
+                className={`inline-flex items-center justify-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-lg border transition-all select-none tabular-nums ${
+                  cooldown > 0
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-200 cursor-not-allowed shadow-none'
+                    : status === 'sending' || isLocked || !email?.trim()
+                    ? 'bg-zinc-900 border-zinc-800 text-zinc-500 cursor-not-allowed opacity-50'
+                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700/80 hover:text-white hover:border-zinc-600 active:scale-95 shadow-sm cursor-pointer'
                 }`}
               >
                 {status === 'sending' ? (
@@ -139,7 +153,9 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
                     <span>Sending...</span>
                   </>
                 ) : cooldown > 0 ? (
-                  `Wait ${formattedCooldown}`
+                  <span className="text-zinc-200 font-medium tabular-nums">
+                    Wait {formattedCooldown}
+                  </span>
                 ) : (
                   'Send Code'
                 )}
@@ -151,31 +167,36 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
 
       {/* 2. Enterprise Segmented 6-Digit PIN Box */}
       {isCodeSent && !isVerified && (
-        <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800/90 shadow-2xl space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
+        <div className={`rounded-xl border transition-all animate-in fade-in zoom-in-95 duration-200 ${
+          compact
+            ? 'p-3 bg-zinc-900/50 border-zinc-800 space-y-2.5'
+            : 'p-3.5 sm:p-4 sm:rounded-2xl bg-zinc-950/90 border-zinc-800/90 shadow-2xl space-y-3.5'
+        }`}>
           {/* Header */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-200 font-medium">Verification Code</span>
-            <span className="text-[11px] text-zinc-500 font-mono">6 digits sent to your email</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 text-xs">
+            <span className={`font-medium text-zinc-200 ${compact ? 'text-[11px]' : 'text-xs'}`}>Verification Code</span>
+            <span className="text-[10px] sm:text-[11px] text-zinc-500 font-mono">6 digits sent to your email</span>
           </div>
 
           {/* Segmented OTP Boxes with auto-advance, backspace, and Enter-key verification */}
-          <div className="py-1">
+          <div className="py-0.5">
             <OtpInput
               value={otp}
               onChange={setOtp}
               onEnter={() => {
-                if (otp.length === 6 && status !== 'verifying' && !isLocked) {
+                if (!isVerifyDisabled) {
                   verifyOtp()
                 }
               }}
               disabled={status === 'verifying' || isLocked}
               hasError={Boolean(error)}
               autoFocus
+              compact={compact}
             />
           </div>
 
           {/* Action Row: Clean Resend + Real Solid Verify Button */}
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center justify-between pt-0.5">
             <div className="text-[11px]">
               {isResending ? (
                 <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
@@ -183,23 +204,31 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
                   <span>Resending...</span>
                 </span>
               ) : isLocked ? (
-                <span className="text-rose-400 font-medium">Verification locked</span>
+                <div className="flex flex-col text-[11px] leading-tight">
+                  <span className="text-rose-400 font-medium">Verification locked</span>
+                  {cooldown > 0 && (
+                    <span className="text-zinc-400 text-[10px]">
+                      Try again in <span className="text-white font-semibold">{formattedCooldown}</span>
+                    </span>
+                  )}
+                </div>
               ) : remainingResends <= 0 ? (
                 cooldown > 0 ? (
-                  <span className="inline-flex items-baseline gap-1.5 text-[11px] tabular-nums">
-                    <span className="text-rose-400 font-medium">Resend limit reached</span>
-                    <span className="text-zinc-600">·</span>
-                    <span className="text-zinc-400">Available in</span>
-                    <span className="text-zinc-200 font-semibold">{formattedCooldown}</span>
-                  </span>
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5 text-[11px] tabular-nums leading-tight">
+                    <span className="text-rose-400 font-medium whitespace-nowrap">Resend limit reached</span>
+                    <span className="hidden sm:inline text-zinc-600">·</span>
+                    <span className="text-zinc-400 text-[10px] sm:text-[11px] whitespace-nowrap">
+                      Available in <span className="text-white font-semibold">{formattedCooldown}</span>
+                    </span>
+                  </div>
                 ) : (
                   <span className="text-rose-400 font-medium">Resend limit reached</span>
                 )
               ) : cooldown > 0 ? (
-                <span className="inline-flex items-baseline gap-1 text-[11px] text-zinc-500 tabular-nums">
-                  <span>Resend in</span>
-                  <span className="text-zinc-300 font-semibold">{formattedCooldown}</span>
-                  <span className="text-zinc-500 text-[10px]">({remainingResends} left)</span>
+                <span className="inline-flex items-baseline gap-1 text-[11px] tabular-nums">
+                  <span className="text-zinc-400">Resend in</span>
+                  <span className="text-white font-semibold">{formattedCooldown}</span>
+                  <span className="text-zinc-500 text-[10px] hidden xs:inline">({remainingResends} left)</span>
                 </span>
               ) : (
                 <button
@@ -215,7 +244,7 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
 
             {/* Real Solid Verify Button */}
             {status === 'verifying' ? (
-              <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium px-3 py-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium px-3 py-1.5 shrink-0">
                 <span className="w-3.5 h-3.5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
                 <span>Verifying...</span>
               </div>
@@ -223,8 +252,10 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
               <button
                 type="button"
                 onClick={() => verifyOtp()}
-                disabled={otp.length !== 6 || isLocked}
-                className="px-3.5 py-1.5 rounded-xl bg-white text-black hover:bg-zinc-200 text-xs font-semibold shadow-sm transition active:scale-95 disabled:opacity-30 disabled:hover:bg-white cursor-pointer select-none"
+                disabled={isVerifyDisabled}
+                className={`rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold shadow-sm transition active:scale-95 disabled:opacity-30 disabled:hover:bg-white cursor-pointer select-none shrink-0 ${
+                  compact ? 'px-3 py-1 text-xs' : 'px-3.5 py-1.5 text-xs'
+                }`}
               >
                 Verify Code
               </button>
@@ -243,29 +274,13 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
 
           {/* Actionable Assistance Card when Resend Clicked, 1 Resend Left, or Limit Reached */}
           {(hasResent || isLocked || remainingResends <= 1) && (
-            <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80 text-[11px] text-zinc-400 space-y-2 animate-in fade-in duration-200">
-              <div className="flex items-center gap-1.5 font-medium text-zinc-300">
-                <svg className="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{isLocked || remainingResends <= 1 ? "Didn't receive the verification code?" : "Didn't receive the first code?"}</span>
-              </div>
-              <ul className="space-y-1.5 text-zinc-400 leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1 shrink-0" />
-                  <span>Check your <span className="text-zinc-200">Spam</span>, <span className="text-zinc-200">Junk</span>, or <span className="text-zinc-200">Promotions</span> folder.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1 shrink-0" />
-                  <span>Corporate security filters (Mimecast, Defender) can delay external emails.</span>
-                </li>
-              </ul>
-              <div className="pt-2.5 flex items-center justify-between border-t border-zinc-800/80">
-                <span className="text-[11px] text-zinc-500">Made a typo or want another address?</span>
+            compact ? (
+              <div className="pt-2 flex items-center justify-between border-t border-zinc-800/80 text-[11px] text-zinc-400">
+                <span>Didn't receive? Check spam.</span>
                 <button
                   type="button"
                   onClick={handleChangeEmail}
-                  className="inline-flex items-center gap-1.5 text-white hover:text-zinc-200 font-medium transition cursor-pointer group text-xs"
+                  className="inline-flex items-center gap-1.5 text-white hover:text-zinc-200 font-medium transition cursor-pointer group text-xs shrink-0"
                 >
                   <span>Change Email</span>
                   <svg className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -273,7 +288,39 @@ export function EmailOtpVerifier({ email, onEmailChange, onVerified, fieldError,
                   </svg>
                 </button>
               </div>
-            </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80 text-[11px] text-zinc-400 space-y-2 animate-in fade-in duration-200">
+                <div className="flex items-center gap-1.5 font-medium text-zinc-300">
+                  <svg className="w-3.5 h-3.5 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{isLocked || remainingResends <= 1 ? "Didn't receive the verification code?" : "Didn't receive the first code?"}</span>
+                </div>
+                <ul className="space-y-1.5 text-zinc-400 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1 shrink-0" />
+                    <span>Check your <span className="text-zinc-200">Spam</span>, <span className="text-zinc-200">Junk</span>, or <span className="text-zinc-200">Promotions</span> folder.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1 shrink-0" />
+                    <span>Corporate security filters (Mimecast, Defender) can delay external emails.</span>
+                  </li>
+                </ul>
+                <div className="pt-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-0 border-t border-zinc-800/80">
+                  <span className="text-[11px] text-zinc-500">Made a typo or want another address?</span>
+                  <button
+                    type="button"
+                    onClick={handleChangeEmail}
+                    className="inline-flex items-center gap-1.5 text-white hover:text-zinc-200 font-medium transition cursor-pointer group text-xs self-start sm:self-auto shrink-0"
+                  >
+                    <span>Change Email</span>
+                    <svg className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )
           )}
         </div>
       )}

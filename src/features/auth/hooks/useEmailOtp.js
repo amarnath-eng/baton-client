@@ -18,9 +18,10 @@ export function formatCooldownTime(seconds) {
  * Headless Hook: Finite State Machine for Email OTP Verification
  * Statuses: 'idle' | 'sending' | 'sent' | 'verifying' | 'verified' | 'locked'
  */
-export function useEmailOtp(email, onVerified, initialToken = null) {
+export function useEmailOtp(email, onVerified, initialToken = null, customSendFn = null) {
   const [status, setStatus] = useState(initialToken ? 'verified' : 'idle')
   const [otp, setOtp] = useState('')
+  const [lastFailedOtp, setLastFailedOtp] = useState('')
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState(initialToken ? 'Email verified successfully!' : '')
   const [cooldown, setCooldown] = useState(0)
@@ -59,10 +60,19 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     return () => clearInterval(timer)
   }, [cooldown, error, status])
 
+  // Handle OTP change: clear error if user edits digits while not locked
+  const handleOtpChange = (newOtp) => {
+    setOtp(newOtp)
+    if (status !== 'locked' && lastFailedOtp && newOtp !== lastFailedOtp) {
+      setError('')
+    }
+  }
+
   // Reset verification state when email changes
   const reset = () => {
     setStatus('idle')
     setOtp('')
+    setLastFailedOtp('')
     setError('')
     setSuccessMessage('')
     setCooldown(0)
@@ -84,9 +94,12 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
       setIsResending(true)
     }
     setError('')
+    // Clear OTP inputs immediately when dispatching / resending code
+    setOtp('')
 
     try {
-      const data = await sendOtpApi(email)
+      const dispatchFn = typeof customSendFn === 'function' ? customSendFn : sendOtpApi
+      const data = await dispatchFn(email)
       const remaining = typeof data?.remainingResends === 'number' ? data.remainingResends : 2
       const secs = typeof data?.remainingSeconds === 'number' ? data.remainingSeconds : (remaining === 0 ? 600 : 60)
       setRemainingResends(remaining)
@@ -94,6 +107,8 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
       setStatus('sent')
       setIsResending(false)
       setSuccessMessage('Verification code sent to your email.')
+      // Reset failed attempt tracking on successful code dispatch
+      setLastFailedOtp('')
       return true
     } catch (err) {
       setIsResending(false)
@@ -151,9 +166,11 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
       setError('')
       const data = await verifyOtpApi(email, code)
       setStatus('verified')
+      setLastFailedOtp('')
       setSuccessMessage('Email verified successfully!')
       onVerified?.(data?.verificationToken)
     } catch (err) {
+      setLastFailedOtp(code)
       setError(err.message)
       const errPayload = err.errors || err.data || {}
       if (errPayload.locked || err.message?.includes('Too many')) {
@@ -186,11 +203,19 @@ export function useEmailOtp(email, onVerified, initialToken = null) {
     return error
   })()
 
+  const isVerifyDisabled =
+    otp.length !== 6 ||
+    status === 'verifying' ||
+    status === 'locked' ||
+    (Boolean(lastFailedOtp) && otp === lastFailedOtp)
+
   return {
     status,
     isResending,
     otp,
-    setOtp,
+    setOtp: handleOtpChange,
+    lastFailedOtp,
+    isVerifyDisabled,
     error: displayError,
     successMessage,
     cooldown,
