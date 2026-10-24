@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ROUTES } from '../../../routes/paths.js'
 import { Badge } from '../../../components/ui/Badge.jsx'
 
 // Left 50% split panel with centered cohesive layout and uniform tight spacing
@@ -12,7 +13,7 @@ export function AuthBrandingPanel() {
       <div className="max-w-md w-full space-y-5 relative z-10">
         {/* Brand Home Link */}
         <div>
-          <Link to="/" className="inline-flex items-center gap-2.5 group">
+          <Link to={ROUTES.HOME} className="inline-flex items-center gap-2.5 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white font-bold text-black text-base shadow-sm">
               B
             </div>

@@ -5,6 +5,7 @@ import { Input } from '../../../components/ui/Input.jsx'
 import { Button } from '../../../components/ui/Button.jsx'
 import { loginApi } from '../../../services/authApi.js'
 import { setCredentials } from '../../../store/authSlice.js'
+import { ROUTES } from '../../../routes/paths.js'
 
 export function LoginForm({ onSubmitSuccess }) {
   const navigate = useNavigate()
@@ -54,12 +55,15 @@ export function LoginForm({ onSubmitSuccess }) {
 
     try {
       setIsSubmitting(true)
-      const data = await loginApi(formData)
+      const data = await loginApi({
+        email: formData.email.trim(),
+        password: formData.password.trim(),
+      })
       dispatch(setCredentials(data))
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        navigate('/dashboard')
+        navigate(ROUTES.DASHBOARD)
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))
@@ -72,7 +76,7 @@ export function LoginForm({ onSubmitSuccess }) {
     <div className="w-full max-w-md mx-auto space-y-5">
       {/* Mobile-only brand header */}
       <div className="lg:hidden text-center pb-2">
-        <Link to="/" className="inline-flex items-center gap-2 group">
+        <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white font-bold text-black text-sm shadow-sm">
             B
           </div>
@@ -121,9 +125,12 @@ export function LoginForm({ onSubmitSuccess }) {
             <label htmlFor="password" className="block text-xs font-medium text-zinc-300">
               Password <span className="text-rose-400">*</span>
             </label>
-            <span className="text-[11px] text-zinc-400 hover:text-white transition cursor-pointer">
+            <Link
+              to={ROUTES.FORGOT_PASSWORD}
+              className="text-[11px] text-zinc-400 hover:text-white transition cursor-pointer"
+            >
               Forgot password?
-            </span>
+            </Link>
           </div>
 
           <Input
@@ -132,15 +139,33 @@ export function LoginForm({ onSubmitSuccess }) {
             placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange('password')}
+            onKeyDown={(e) => {
+              if (e.key === ' ' && !formData.password) {
+                e.preventDefault()
+              }
+            }}
             error={errors.password}
             required
             suffix={
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="w-7 h-7 rounded-lg bg-zinc-850 hover:bg-zinc-750 active:bg-zinc-700 border border-zinc-700/70 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all shadow-xs cursor-pointer select-none"
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <line x1="3" y1="3" x2="21" y2="21" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
               </button>
             }
           />
@@ -176,14 +201,14 @@ export function LoginForm({ onSubmitSuccess }) {
       <div className="pt-2 text-center text-xs text-zinc-400 border-t border-zinc-900 space-y-2">
         <p>
           Don&apos;t have a workspace?{' '}
-          <Link to="/register" className="font-medium text-white hover:underline transition">
+          <Link to={ROUTES.REGISTER} className="font-medium text-white hover:underline transition">
             Create Workspace
           </Link>
         </p>
 
         <div>
           <Link
-            to="/"
+            to={ROUTES.HOME}
             className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors group font-medium"
           >
             <svg

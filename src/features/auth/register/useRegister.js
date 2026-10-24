@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { registerApi } from '../../../services/authApi.js'
 import { setCredentials } from '../../../store/authSlice.js'
+import { ROUTES } from '../../../routes/paths.js'
 
 export function useRegister({ onSubmitSuccess } = {}) {
   const navigate = useNavigate()
@@ -75,6 +76,8 @@ export function useRegister({ onSubmitSuccess } = {}) {
 
   const validateForm = () => {
     const newErrors = {}
+    const cleanPassword = formData.password.trim()
+    const cleanConfirm = formData.confirmPassword.trim()
 
     if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required'
     if (!formData.email.trim()) newErrors.email = 'Work email is required'
@@ -86,10 +89,10 @@ export function useRegister({ onSubmitSuccess } = {}) {
       newErrors.workspaceSlug = `Workspace "${formData.workspaceSlug}" is taken. Choose another URL or click Request Access.`
     }
 
-    if (!formData.password) newErrors.password = 'Password is required'
-    else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
+    if (!cleanPassword) newErrors.password = 'Password is required'
+    else if (cleanPassword.length < 8) newErrors.password = 'Password must be at least 8 characters'
 
-    if (formData.password !== formData.confirmPassword) {
+    if (cleanPassword !== cleanConfirm) {
       newErrors.confirmPassword = 'Passwords do not match'
     }
 
@@ -104,11 +107,11 @@ export function useRegister({ onSubmitSuccess } = {}) {
     try {
       setIsSubmitting(true)
       const data = await registerApi({
-        fullName: formData.fullName,
-        email: formData.email,
-        companyName: formData.companyName,
-        workspaceSlug: formData.workspaceSlug,
-        password: formData.password,
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        companyName: formData.companyName.trim(),
+        workspaceSlug: formData.workspaceSlug.trim(),
+        password: formData.password.trim(),
         verificationToken,
       })
 
@@ -117,7 +120,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
       if (onSubmitSuccess) {
         onSubmitSuccess(data)
       } else {
-        navigate('/dashboard')
+        navigate(ROUTES.DASHBOARD)
       }
     } catch (err) {
       setErrors((prev) => ({ ...prev, form: err.message }))

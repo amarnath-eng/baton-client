@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 export function RequestAccessSuccess({ companySlug, companyName, role, onClose }) {
   return (
     <div className="text-center py-4 space-y-4">
@@ -16,19 +14,13 @@ export function RequestAccessSuccess({ companySlug, companyName, role, onClose }
       <p className="text-[11px] text-zinc-500 max-w-xs mx-auto">
         You will receive an email notification as soon as your request is reviewed.
       </p>
-      <div className="pt-3 flex gap-2 justify-center">
-        <Link
-          to={`/login?workspace=${encodeURIComponent(companySlug)}`}
-          className="px-4 py-2 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition"
-        >
-          Go to Sign In
-        </Link>
+      <div className="pt-2 flex justify-center">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium border border-zinc-800 transition cursor-pointer"
+          className="px-5 py-2.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition active:scale-95 shadow-sm cursor-pointer select-none"
         >
-          Close
+          Back to Home
         </button>
       </div>
     </div>

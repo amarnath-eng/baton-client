@@ -2,11 +2,13 @@ import { useEffect } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, ScrollRestoration } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { checkAuthSession } from './store/authSlice.js'
+import { ROUTES } from './routes/paths.js'
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx'
 import { PublicOnlyRoute } from './routes/PublicOnlyRoute.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
 
@@ -32,11 +34,11 @@ const router = createBrowserRouter([
     children: [
       // 1. Open to everyone
       {
-        path: '/',
+        path: ROUTES.HOME,
         element: <LandingPage />,
       },
       {
-        path: '/invite/accept',
+        path: ROUTES.ACCEPT_INVITE,
         element: <AcceptInvitePage />,
       },
 
@@ -45,12 +47,16 @@ const router = createBrowserRouter([
         element: <PublicOnlyRoute />,
         children: [
           {
-            path: '/register',
+            path: ROUTES.REGISTER,
             element: <RegisterPage />,
           },
           {
-            path: '/login',
+            path: ROUTES.LOGIN,
             element: <LoginPage />,
+          },
+          {
+            path: ROUTES.FORGOT_PASSWORD,
+            element: <ForgotPasswordPage />,
           },
         ],
       },
@@ -60,7 +66,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           {
-            path: '/dashboard',
+            path: ROUTES.DASHBOARD,
             element: <DashboardPage />,
           },
         ],
@@ -69,7 +75,7 @@ const router = createBrowserRouter([
       // Fallback
       {
         path: '*',
-        element: <Navigate to="/" replace />,
+        element: <Navigate to={ROUTES.HOME} replace />,
       },
     ],
   },

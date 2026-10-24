@@ -44,3 +44,19 @@ export async function logoutApi() {
     defaultError: 'Logout failed.',
   })
 }
+
+export async function sendPasswordResetOtpApi(email) {
+  return request('/auth/forgot-password/send-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+    defaultError: 'Failed to send password reset code.',
+  })
+}
+
+export async function resetPasswordApi(payload) {
+  return request('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    defaultError: 'Failed to reset password.',
+  })
+}

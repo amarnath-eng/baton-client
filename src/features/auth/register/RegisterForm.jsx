@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '../../../routes/paths.js'
 import { Input } from '../../../components/ui/Input.jsx'
 import { Button } from '../../../components/ui/Button.jsx'
 import { EmailOtpVerifier } from '../components/EmailOtpVerifier.jsx'
@@ -23,6 +24,8 @@ export function RegisterForm({ onSubmitSuccess }) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
+  
+  const slugCheckTimerRef = useRef(null);
 
   const {
     formData,
@@ -70,12 +73,16 @@ export function RegisterForm({ onSubmitSuccess }) {
 
   // Real-time debounced slug collision check
   const checkSlugCollision = (slug) => {
+    if (slugCheckTimerRef.current) {
+      clearTimeout(slugCheckTimerRef.current)
+    }
+
     if (!slug || slug.length < 3 || !SLUG_REGEX.test(slug)) {
       handleSlugStatusChange({ isChecking: false, exists: false, companyName: '' })
       return
     }
 
-    const timer = setTimeout(async () => {
+    slugCheckTimerRef.current = setTimeout(async () => {
       try {
         handleSlugStatusChange((prev) => ({ ...prev, isChecking: true }))
         const res = await checkSlugApi(slug)
@@ -88,15 +95,13 @@ export function RegisterForm({ onSubmitSuccess }) {
         handleSlugStatusChange({ isChecking: false, exists: false, companyName: '' })
       }
     }, 450)
-
-    return () => clearTimeout(timer)
   }
 
   return (
     <div className="w-full max-w-md mx-auto space-y-5">
       {/* Mobile-only brand header */}
       <div className="lg:hidden text-center pb-2">
-        <Link to="/" className="inline-flex items-center gap-2 group">
+        <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white font-bold text-black text-sm shadow-sm">
             B
           </div>
@@ -175,11 +180,10 @@ export function RegisterForm({ onSubmitSuccess }) {
 
         {/* Downstream Credentials & Creation (Soft-locked when slug is taken) */}
         <div
-          className={`space-y-4 transition-all duration-300 ${
-            slugStatus.exists
+          className={`space-y-4 transition-all duration-300 ${slugStatus.exists
               ? 'opacity-30 pointer-events-none select-none grayscale'
               : 'opacity-100'
-          }`}
+            }`}
         >
           {/* Password */}
           <Input
@@ -189,15 +193,33 @@ export function RegisterForm({ onSubmitSuccess }) {
             placeholder="Create a password (min. 8 characters)"
             value={formData.password}
             onChange={handlePasswordChange}
+            onKeyDown={(e) => {
+              if (e.key === ' ' && !formData.password) {
+                e.preventDefault()
+              }
+            }}
             error={errors.password}
             required
             suffix={
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="w-7 h-7 rounded-lg bg-zinc-850 hover:bg-zinc-750 active:bg-zinc-700 border border-zinc-700/70 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all shadow-xs cursor-pointer select-none"
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <line x1="3" y1="3" x2="21" y2="21" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
               </button>
             }
           />
@@ -210,15 +232,33 @@ export function RegisterForm({ onSubmitSuccess }) {
             placeholder="Confirm your password"
             value={formData.confirmPassword}
             onChange={handleConfirmPasswordChange}
+            onKeyDown={(e) => {
+              if (e.key === ' ' && !formData.confirmPassword) {
+                e.preventDefault()
+              }
+            }}
             error={errors.confirmPassword}
             required
             suffix={
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-xs text-zinc-400 hover:text-white transition cursor-pointer select-none px-1"
+                title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                className="w-7 h-7 rounded-lg bg-zinc-850 hover:bg-zinc-750 active:bg-zinc-700 border border-zinc-700/70 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all shadow-xs cursor-pointer select-none"
               >
-                {showConfirmPassword ? 'Hide' : 'Show'}
+                {showConfirmPassword ? (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                    <line x1="3" y1="3" x2="21" y2="21" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
               </button>
             }
           />
@@ -260,7 +300,7 @@ export function RegisterForm({ onSubmitSuccess }) {
         {!slugStatus.exists && (
           <p>
             Already have a workspace?{' '}
-            <Link to="/login" className="font-medium text-white hover:underline transition">
+            <Link to={ROUTES.LOGIN} className="font-medium text-white hover:underline transition">
               Sign In
             </Link>
           </p>
@@ -268,7 +308,7 @@ export function RegisterForm({ onSubmitSuccess }) {
 
         <div>
           <Link
-            to="/"
+            to={ROUTES.HOME}
             className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors group font-medium"
           >
             <svg
