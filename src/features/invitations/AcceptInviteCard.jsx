@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { checkAuthSession } from '../../store/authSlice.js'
@@ -6,6 +6,8 @@ import { verifyInviteTokenApi, acceptInviteApi } from '../../services/invitation
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { ROUTES } from '../../routes/paths.js'
+import { Shimmer } from '../../components/ui/Shimmer.jsx'
+import { useDeferredLoading } from '../../hooks/useDeferredLoading.js'
 
 export function AcceptInviteCard() {
   const [searchParams] = useSearchParams()
@@ -14,6 +16,7 @@ export function AcceptInviteCard() {
   const dispatch = useDispatch()
 
   const [loading, setLoading] = useState(true)
+  const showSkeleton = useDeferredLoading(loading, { delayMs: 150, minDurationMs: 300 })
   const [inviteData, setInviteData] = useState(null)
   const [error, setError] = useState('')
 
@@ -22,6 +25,16 @@ export function AcceptInviteCard() {
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const submitAbortControllerRef = useRef(null)
+
+  // Clean up in-flight submission on unmount
+  useEffect(() => {
+    return () => {
+      if (submitAbortControllerRef.current) {
+        submitAbortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   // 1. Verify token on initial mount
   useEffect(() => {
@@ -31,21 +44,32 @@ export function AcceptInviteCard() {
       return
     }
 
+    const controller = new AbortController()
+
     async function verify() {
       try {
         setLoading(true)
         setError('')
-        const data = await verifyInviteTokenApi(token)
-        setInviteData(data)
-        setFullName(data.name || '')
+        const data = await verifyInviteTokenApi(token, { signal: controller.signal })
+        if (!controller.signal.aborted) {
+          setInviteData(data)
+          setFullName(data.name || '')
+        }
       } catch (err) {
+        if (err.name === 'AbortError' || controller.signal.aborted) return
         setError(err.message || 'Invalid or expired invitation link.')
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
       }
     }
 
     verify()
+
+    return () => {
+      controller.abort()
+    }
   }, [token])
 
   // 2. Handle form submission (Accept & Join)
@@ -63,33 +87,71 @@ export function AcceptInviteCard() {
       return
     }
 
+    if (submitAbortControllerRef.current) {
+      submitAbortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    submitAbortControllerRef.current = controller
+
     try {
       setSubmitting(true)
       setSubmitError('')
-      await acceptInviteApi({
-        token,
-        fullName: fullName.trim(),
-        password,
-      })
+      await acceptInviteApi(
+        {
+          token,
+          fullName: fullName.trim(),
+          password,
+        },
+        { signal: controller.signal }
+      )
 
-      // Refresh auth state in Redux store
-      await dispatch(checkAuthSession())
-      navigate(ROUTES.DASHBOARD)
+      if (!controller.signal.aborted) {
+        // Refresh auth state in Redux store
+        await dispatch(checkAuthSession())
+        navigate(ROUTES.DASHBOARD)
+      }
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setSubmitError(err.message || 'Failed to accept invitation.')
     } finally {
-      setSubmitting(false)
+      if (!controller.signal.aborted) {
+        setSubmitting(false)
+      }
     }
   }
 
-  // Loading Skeleton State
-  if (loading) {
+  // Loading Shimmer Skeleton State (Zero layout shift, no flash)
+  if (showSkeleton) {
     return (
-      <div className="w-full max-w-md p-8 rounded-2xl border border-zinc-800 bg-zinc-950/70 text-center space-y-4">
-        <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin mx-auto" />
-        <p className="text-xs text-zinc-400 font-mono tracking-wider">
-          VERIFYING INVITATION TOKEN...
-        </p>
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-1.5 flex flex-col items-center">
+          <Shimmer className="h-3 w-32" rounded="rounded" />
+          <Shimmer className="h-7 w-24" rounded="rounded-md" />
+        </div>
+
+        <div className="p-6 sm:p-8 rounded-2xl border border-zinc-800 bg-zinc-950/80 shadow-2xl space-y-6">
+          <div className="space-y-2.5 text-center pb-4 border-b border-zinc-900 flex flex-col items-center">
+            <Shimmer className="h-5 w-24" rounded="rounded-full" />
+            <Shimmer className="h-6 w-48" rounded="rounded-md" />
+            <Shimmer className="h-3.5 w-64" rounded="rounded" />
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Shimmer className="h-3 w-16" rounded="rounded" />
+              <Shimmer className="h-10 w-full" rounded="rounded-xl" />
+            </div>
+            <div className="space-y-1.5">
+              <Shimmer className="h-3 w-16" rounded="rounded" />
+              <Shimmer className="h-10 w-full" rounded="rounded-xl" />
+            </div>
+            <div className="space-y-1.5">
+              <Shimmer className="h-3 w-28" rounded="rounded" />
+              <Shimmer className="h-10 w-full" rounded="rounded-xl" />
+            </div>
+            <Shimmer className="h-10 w-full mt-2" rounded="rounded-xl" />
+          </div>
+        </div>
       </div>
     )
   }

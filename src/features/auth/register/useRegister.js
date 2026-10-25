@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { registerApi } from '../../../services/authApi.js'
@@ -8,6 +8,16 @@ import { ROUTES } from '../../../routes/paths.js'
 export function useRegister({ onSubmitSuccess } = {}) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const abortControllerRef = useRef(null)
+
+  // Clean up in-flight register request on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -104,28 +114,42 @@ export function useRegister({ onSubmitSuccess } = {}) {
     e.preventDefault()
     if (!validateForm()) return
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       setIsSubmitting(true)
-      const data = await registerApi({
-        fullName: formData.fullName.trim(),
-        email: formData.email.trim(),
-        companyName: formData.companyName.trim(),
-        workspaceSlug: formData.workspaceSlug.trim(),
-        password: formData.password.trim(),
-        verificationToken,
-      })
+      const data = await registerApi(
+        {
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          companyName: formData.companyName.trim(),
+          workspaceSlug: formData.workspaceSlug.trim(),
+          password: formData.password.trim(),
+          verificationToken,
+        },
+        { signal: controller.signal }
+      )
 
-      dispatch(setCredentials(data))
+      if (!controller.signal.aborted) {
+        dispatch(setCredentials(data))
 
-      if (onSubmitSuccess) {
-        onSubmitSuccess(data)
-      } else {
-        navigate(ROUTES.DASHBOARD)
+        if (onSubmitSuccess) {
+          onSubmitSuccess(data)
+        } else {
+          navigate(ROUTES.DASHBOARD)
+        }
       }
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setErrors((prev) => ({ ...prev, form: err.message }))
     } finally {
-      setIsSubmitting(false)
+      if (!controller.signal.aborted) {
+        setIsSubmitting(false)
+      }
     }
   }
 

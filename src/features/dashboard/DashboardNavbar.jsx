@@ -7,7 +7,6 @@ import DashboardUserMenu from './DashboardUserMenu.jsx'
 export default function DashboardNavbar({
   activeTab = 'handovers',
   onTabChange,
-  pendingRequestsCount = 0,
 }) {
   const { role } = useSelector((state) => state.auth)
   const [isOverflowing, setIsOverflowing] = useState(false)
@@ -28,7 +27,6 @@ export default function DashboardNavbar({
           variant="desktop"
           activeTab={activeTab}
           onTabChange={onTabChange}
-          pendingRequestsCount={pendingRequestsCount}
           isPrivileged={isPrivileged}
         />
 
@@ -43,7 +41,6 @@ export default function DashboardNavbar({
         variant="mobile"
         activeTab={activeTab}
         onTabChange={onTabChange}
-        pendingRequestsCount={pendingRequestsCount}
         isPrivileged={isPrivileged}
       />
     </header>

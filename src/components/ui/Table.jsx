@@ -1,4 +1,5 @@
 import React from 'react'
+import { Shimmer } from './Shimmer.jsx'
 
 /**
  * Modern, responsive Table container with dual-axis scrolling:
@@ -86,16 +87,49 @@ export function TableCell({ children, className = '', ...props }) {
 }
 
 /**
- * Standard Loading State Container
+ * Modern Table Shimmer Skeleton Container
  */
-export function TableLoading({ message = 'Loading records...' }) {
+export function TableLoading({ rows = 4, cols = 4 }) {
   return (
-    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-8 text-center text-xs text-zinc-500">
-      <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent mb-2" />
-      <div>{message}</div>
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 overflow-hidden shadow-sm">
+      {/* Skeleton Header */}
+      <div className="border-b border-zinc-800/80 bg-zinc-900/30 px-4 py-3 flex items-center justify-between gap-4">
+        {Array.from({ length: cols }).map((_, i) => (
+          <Shimmer
+            key={i}
+            className={`h-3 ${
+              i === 0 ? 'w-28' : i === cols - 1 ? 'w-20' : 'w-24'
+            }`}
+            rounded="rounded"
+          />
+        ))}
+      </div>
+
+      {/* Skeleton Rows */}
+      <div className="divide-y divide-zinc-900/80">
+        {Array.from({ length: rows }).map((_, r) => (
+          <div
+            key={r}
+            className="px-4 py-3.5 flex items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <Shimmer className="h-8 w-8 shrink-0" rounded="rounded-full" />
+              <div className="space-y-1.5">
+                <Shimmer className="h-3.5 w-32" rounded="rounded" />
+                <Shimmer className="h-2.5 w-40" rounded="rounded" />
+              </div>
+            </div>
+
+            <Shimmer className="h-3 w-20 hidden sm:block" rounded="rounded" />
+            <Shimmer className="h-4 w-16 rounded-full hidden sm:block" />
+            <Shimmer className="h-7 w-16 shrink-0" rounded="rounded-lg" />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
+
 
 /**
  * Standard Empty State Container

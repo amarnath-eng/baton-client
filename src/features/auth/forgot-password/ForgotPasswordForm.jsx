@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '../../../components/ui/Input.jsx'
 import { Button } from '../../../components/ui/Button.jsx'
@@ -17,6 +17,16 @@ export function ForgotPasswordForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
+  const abortControllerRef = useRef(null)
+
+  // Clean up in-flight reset request on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   // Smart password input: block leading spaces, allow Diceware multi-word passphrases
   const handlePasswordKeyDown = (e) => {
@@ -64,19 +74,33 @@ export function ForgotPasswordForm() {
       return
     }
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       setIsSubmitting(true)
       setError('')
-      await resetPasswordApi({
-        email: email.trim(),
-        password: cleanPassword,
-        verificationToken,
-      })
-      setIsSuccess(true)
+      await resetPasswordApi(
+        {
+          email: email.trim(),
+          password: cleanPassword,
+          verificationToken,
+        },
+        { signal: controller.signal }
+      )
+      if (!controller.signal.aborted) {
+        setIsSuccess(true)
+      }
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setError(err.message || 'Failed to reset password. Please try again.')
     } finally {
-      setIsSubmitting(false)
+      if (!controller.signal.aborted) {
+        setIsSubmitting(false)
+      }
     }
   }
 

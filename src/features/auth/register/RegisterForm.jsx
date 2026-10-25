@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../routes/paths.js'
 import { Input } from '../../../components/ui/Input.jsx'
@@ -25,7 +25,20 @@ export function RegisterForm({ onSubmitSuccess }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
   
-  const slugCheckTimerRef = useRef(null);
+  const slugCheckTimerRef = useRef(null)
+  const slugAbortControllerRef = useRef(null)
+
+  // Clean up in-flight debounce timer and request on unmount
+  useEffect(() => {
+    return () => {
+      if (slugCheckTimerRef.current) {
+        clearTimeout(slugCheckTimerRef.current)
+      }
+      if (slugAbortControllerRef.current) {
+        slugAbortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   const {
     formData,
@@ -71,10 +84,13 @@ export function RegisterForm({ onSubmitSuccess }) {
     checkSlugCollision(slug)
   }
 
-  // Real-time debounced slug collision check
+  // Real-time debounced slug collision check with AbortController
   const checkSlugCollision = (slug) => {
     if (slugCheckTimerRef.current) {
       clearTimeout(slugCheckTimerRef.current)
+    }
+    if (slugAbortControllerRef.current) {
+      slugAbortControllerRef.current.abort()
     }
 
     if (!slug || slug.length < 3 || !SLUG_REGEX.test(slug)) {
@@ -83,15 +99,21 @@ export function RegisterForm({ onSubmitSuccess }) {
     }
 
     slugCheckTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController()
+      slugAbortControllerRef.current = controller
+
       try {
         handleSlugStatusChange((prev) => ({ ...prev, isChecking: true }))
-        const res = await checkSlugApi(slug)
-        handleSlugStatusChange({
-          isChecking: false,
-          exists: Boolean(res.exists),
-          companyName: res.companyName || '',
-        })
-      } catch {
+        const res = await checkSlugApi(slug, { signal: controller.signal })
+        if (!controller.signal.aborted) {
+          handleSlugStatusChange({
+            isChecking: false,
+            exists: Boolean(res.exists),
+            companyName: res.companyName || '',
+          })
+        }
+      } catch (err) {
+        if (err.name === 'AbortError' || controller.signal.aborted) return
         handleSlugStatusChange({ isChecking: false, exists: false, companyName: '' })
       }
     }, 450)

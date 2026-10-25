@@ -28,6 +28,16 @@ export function useEmailOtp(email, onVerified, initialToken = null, customSendFn
   const [remainingResends, setRemainingResends] = useState(3)
   const [isResending, setIsResending] = useState(false)
   const prevCooldownRef = useRef(0)
+  const abortControllerRef = useRef(null)
+
+  // Clean up in-flight requests on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   // Sync initialToken if provided or updated
   useEffect(() => {
@@ -97,9 +107,17 @@ export function useEmailOtp(email, onVerified, initialToken = null, customSendFn
     // Clear OTP inputs immediately when dispatching / resending code
     setOtp('')
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const dispatchFn = typeof customSendFn === 'function' ? customSendFn : sendOtpApi
-      const data = await dispatchFn(email)
+      const data = await dispatchFn(email, { signal: controller.signal })
+      if (controller.signal.aborted) return false
+
       const remaining = typeof data?.remainingResends === 'number' ? data.remainingResends : 2
       const secs = typeof data?.remainingSeconds === 'number' ? data.remainingSeconds : (remaining === 0 ? 600 : 60)
       setRemainingResends(remaining)
@@ -111,6 +129,9 @@ export function useEmailOtp(email, onVerified, initialToken = null, customSendFn
       setLastFailedOtp('')
       return true
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) {
+        return false
+      }
       setIsResending(false)
       const errPayload = err.errors || err.data || {}
       if (typeof errPayload.remainingResends === 'number') {
@@ -161,15 +182,26 @@ export function useEmailOtp(email, onVerified, initialToken = null, customSendFn
       return
     }
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       setStatus('verifying')
       setError('')
-      const data = await verifyOtpApi(email, code)
+      const data = await verifyOtpApi(email, code, { signal: controller.signal })
+      if (controller.signal.aborted) return
+
       setStatus('verified')
       setLastFailedOtp('')
       setSuccessMessage('Email verified successfully!')
       onVerified?.(data?.verificationToken)
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) {
+        return
+      }
       setLastFailedOtp(code)
       setError(err.message)
       const errPayload = err.errors || err.data || {}

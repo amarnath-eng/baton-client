@@ -1,7 +1,6 @@
 export default function DashboardNavTabs({
   activeTab = 'handovers',
   onTabChange,
-  pendingRequestsCount = 0,
   isPrivileged = false,
   variant = 'desktop',
 }) {
@@ -28,7 +27,7 @@ export default function DashboardNavTabs({
             <button
               type="button"
               onClick={() => onTabChange?.('team')}
-              className={`relative px-3.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'team'
                   ? 'bg-zinc-800 text-white shadow-[0_1px_3px_rgba(0,0,0,0.6)] border border-white/10'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
@@ -38,11 +37,6 @@ export default function DashboardNavTabs({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
               <span>Team & Access</span>
-              {pendingRequestsCount > 0 && (
-                <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm">
-                  {pendingRequestsCount}
-                </span>
-              )}
             </button>
           )}
 
@@ -71,7 +65,7 @@ export default function DashboardNavTabs({
       <button
         type="button"
         onClick={() => onTabChange?.('handovers')}
-        className={`py-2.5 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
+        className={`py-2 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
           activeTab === 'handovers'
             ? 'text-white border-white font-semibold'
             : 'text-zinc-500 border-transparent hover:text-zinc-300'
@@ -84,25 +78,20 @@ export default function DashboardNavTabs({
         <button
           type="button"
           onClick={() => onTabChange?.('team')}
-          className={`py-2.5 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px flex items-center gap-1.5 ${
+          className={`py-2 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px flex items-center gap-1.5 ${
             activeTab === 'team'
               ? 'text-white border-white font-semibold'
               : 'text-zinc-500 border-transparent hover:text-zinc-300'
           }`}
         >
           <span>Team & Access</span>
-          {pendingRequestsCount > 0 && (
-            <span className="flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-rose-500 text-[8px] font-bold text-white">
-              {pendingRequestsCount}
-            </span>
-          )}
         </button>
       )}
 
       <button
         type="button"
         onClick={() => onTabChange?.('audit')}
-        className={`py-2.5 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
+        className={`py-2 transition whitespace-nowrap cursor-pointer border-b-2 -mb-px ${
           activeTab === 'audit'
             ? 'text-white border-white font-semibold'
             : 'text-zinc-500 border-transparent hover:text-zinc-300'

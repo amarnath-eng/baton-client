@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { getAccessRequestsApi, reviewAccessRequestApi } from '../../../services/accessRequestApi.js'
 import { getInvitationsApi, revokeInvitationApi } from '../../../services/invitationApi.js'
+import { useWindowFocus } from '../../../hooks/useWindowFocus.js'
 
-export function useTeamManagement(onPendingRequestsChange) {
+export function useTeamManagement(activeTab = 'requests') {
   const { role: currentUserRole } = useSelector((state) => state.auth)
   const isAdmin = currentUserRole === 'admin'
   const canInvite = currentUserRole === 'admin' || currentUserRole === 'manager'
@@ -13,103 +14,136 @@ export function useTeamManagement(onPendingRequestsChange) {
   const [loading, setLoading] = useState(true)
   const [actionLoadingId, setActionLoadingId] = useState(null)
   const [error, setError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [approvedInviteUrl, setApprovedInviteUrl] = useState(null)
+  const [notification, setNotification] = useState(null)
+  const [approvedInviteData, setApprovedInviteData] = useState(null)
 
-  const isFetchingRef = useRef(false)
-
-  // Memoized count of pending requests (only recomputes when requests array changes)
-  const pendingRequestsCount = useMemo(
-    () => requests.filter((r) => r.status === 'pending').length,
-    [requests]
-  )
-
-  // Keep parent (e.g. Dashboard navigation badge) in sync
-  useEffect(() => {
-    onPendingRequestsChange?.(pendingRequestsCount)
-  }, [pendingRequestsCount, onPendingRequestsChange])
+  const abortControllerRef = useRef(null)
+  const actionAbortControllerRef = useRef(null)
+  const successTimeoutRef = useRef(null)
 
   const fetchData = useCallback(async () => {
-    // Prevent duplicate in-flight requests from button spamming
-    if (isFetchingRef.current) return
-    isFetchingRef.current = true
+    // 1. Terminate previous in-flight request if user quickly switched tabs
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
 
     setLoading(true)
     setError(null)
     try {
-      const [reqResult, invResult] = await Promise.allSettled([
-        isAdmin ? getAccessRequestsApi() : Promise.resolve([]),
-        getInvitationsApi(),
-      ])
-
-      if (reqResult.status === 'fulfilled') {
-        setRequests(reqResult.value || [])
-      }
-
-      if (invResult.status === 'fulfilled') {
-        setInvitations(invResult.value || [])
-      }
-
-      // If either failed, show the actual error message
-      if (reqResult.status === 'rejected' || invResult.status === 'rejected') {
-        const realError =
-          invResult.reason?.message ||
-          reqResult.reason?.message ||
-          'Failed to load team data. Please check your connection.'
-        setError(realError)
+      if (activeTab === 'requests') {
+        if (isAdmin) {
+          const reqData = await getAccessRequestsApi({ signal: controller.signal })
+          if (!controller.signal.aborted) {
+            setRequests(reqData || [])
+          }
+        }
+      } else if (activeTab === 'invitations') {
+        const invData = await getInvitationsApi({ signal: controller.signal })
+        if (!controller.signal.aborted) {
+          setInvitations(invData || [])
+        }
       }
     } catch (err) {
-      setError(err?.message || 'Failed to fetch team data.')
+      if (err.name === 'AbortError' || controller.signal.aborted) {
+        return
+      }
+      setError(err?.message || 'Failed to load team data.')
     } finally {
-      isFetchingRef.current = false
-      setLoading(false)
+      if (!controller.signal.aborted) {
+        setLoading(false)
+      }
     }
-  }, [isAdmin, onPendingRequestsChange])
+  }, [activeTab, isAdmin])
 
   useEffect(() => {
     fetchData()
+    return () => {
+      // Clean up in-flight requests on unmount to prevent React memory leaks
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+      if (actionAbortControllerRef.current) {
+        actionAbortControllerRef.current.abort()
+      }
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current)
+      }
+    }
   }, [fetchData])
 
-  async function handleReviewRequest(id, action, requestedRole, reviewNotes = '') {
+  // Revalidate fresh team data when returning to browser window
+  useWindowFocus(fetchData)
+
+  async function handleReviewRequest(id, action, requestedRole, reviewNotes = '', applicantInfo = null) {
+    if (actionAbortControllerRef.current) {
+      actionAbortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    actionAbortControllerRef.current = controller
+
     setActionLoadingId(id)
     setError(null)
-    setSuccessMessage(null)
+    setNotification(null)
     try {
-      const response = await reviewAccessRequestApi(id, {
-        action,
-        assignedRole: requestedRole,
-        reviewNotes: reviewNotes?.trim() || '',
-      })
+      const response = await reviewAccessRequestApi(
+        id,
+        {
+          action,
+          assignedRole: requestedRole,
+          reviewNotes: reviewNotes?.trim() || '',
+        },
+        { signal: controller.signal }
+      )
 
-      if (action === 'approve' && response?.inviteUrl) {
-        setApprovedInviteUrl(response.inviteUrl)
+      if (action === 'approve') {
+        if (response?.inviteUrl) {
+          try {
+            const saved = JSON.parse(localStorage.getItem('baton_invite_urls') || '{}')
+            saved[id] = response.inviteUrl
+            if (response.invitationId) saved[response.invitationId] = response.inviteUrl
+            localStorage.setItem('baton_invite_urls', JSON.stringify(saved))
+          } catch (_) {}
+        }
+        setNotification({ type: 'approve', message: 'Access request has been approved.' })
+      } else if (action === 'reject') {
+        setNotification({ type: 'reject', message: 'Access request has been rejected.' })
       }
 
-      setSuccessMessage(
-        action === 'approve'
-          ? 'Access request approved! 7-day invitation link generated.'
-          : 'Access request has been rejected.'
-      )
       await fetchData()
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setError(err?.message || `Failed to ${action} access request.`)
     } finally {
-      setActionLoadingId(null)
+      if (!controller.signal.aborted) {
+        setActionLoadingId(null)
+      }
     }
   }
 
   async function handleRevokeInvitation(id) {
+    if (actionAbortControllerRef.current) {
+      actionAbortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    actionAbortControllerRef.current = controller
+
     setActionLoadingId(id)
     setError(null)
-    setSuccessMessage(null)
+    setNotification(null)
     try {
-      await revokeInvitationApi(id)
-      setSuccessMessage('Invitation revoked successfully.')
+      await revokeInvitationApi(id, { signal: controller.signal })
+      setNotification({ type: 'reject', message: 'Invitation revoked successfully.' })
       await fetchData()
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setError(err?.message || 'Failed to revoke invitation.')
     } finally {
-      setActionLoadingId(null)
+      if (!controller.signal.aborted) {
+        setActionLoadingId(null)
+      }
     }
   }
 
@@ -118,15 +152,16 @@ export function useTeamManagement(onPendingRequestsChange) {
     canInvite,
     requests,
     invitations,
-    pendingRequestsCount,
     loading,
     actionLoadingId,
     error,
     setError,
-    successMessage,
-    setSuccessMessage,
-    approvedInviteUrl,
-    setApprovedInviteUrl,
+    notification,
+    setNotification,
+    successMessage: notification?.message,
+    setSuccessMessage: (msg) => setNotification(msg ? { type: 'approve', message: msg } : null),
+    approvedInviteData,
+    setApprovedInviteData,
     handleReviewRequest,
     handleRevokeInvitation,
     refetch: fetchData,

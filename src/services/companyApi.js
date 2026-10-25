@@ -5,22 +5,21 @@ import { request } from './apiClient.js'
  * @param {string} slug 
  * @returns {Promise<{ exists: boolean, slug: string, companyName?: string }>}
  */
-export async function checkSlugApi(slug) {
+export async function checkSlugApi(slug, options = {}) {
   if (!slug || !slug.trim()) {
     return { exists: false, slug: '' }
   }
 
   return request(`/companies/check-slug/${encodeURIComponent(slug.trim())}`, {
     defaultError: 'Failed to check workspace slug.',
+    ...options,
   })
 }
 
-/**
- * Fetch active members for current workspace
- */
-export async function getCompanyMembersApi() {
+export async function getCompanyMembersApi(options = {}) {
   const data = await request('/companies/members', {
     defaultError: 'Failed to fetch workspace members.',
+    ...options,
   })
   return data?.members ?? []
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Input } from '../../../components/ui/Input.jsx'
@@ -18,6 +18,16 @@ export function LoginForm({ onSubmitSuccess }) {
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const abortControllerRef = useRef(null)
+
+  // Clean up in-flight login request on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   const handleChange = (field) => (e) => {
     let val = e.target.value
@@ -53,22 +63,36 @@ export function LoginForm({ onSubmitSuccess }) {
     e.preventDefault()
     if (!validateForm()) return
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       setIsSubmitting(true)
-      const data = await loginApi({
-        email: formData.email.trim(),
-        password: formData.password.trim(),
-      })
-      dispatch(setCredentials(data))
-      if (onSubmitSuccess) {
-        onSubmitSuccess(data)
-      } else {
-        navigate(ROUTES.DASHBOARD)
+      const data = await loginApi(
+        {
+          email: formData.email.trim(),
+          password: formData.password.trim(),
+        },
+        { signal: controller.signal }
+      )
+      if (!controller.signal.aborted) {
+        dispatch(setCredentials(data))
+        if (onSubmitSuccess) {
+          onSubmitSuccess(data)
+        } else {
+          navigate(ROUTES.DASHBOARD)
+        }
       }
     } catch (err) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return
       setErrors((prev) => ({ ...prev, form: err.message }))
     } finally {
-      setIsSubmitting(false)
+      if (!controller.signal.aborted) {
+        setIsSubmitting(false)
+      }
     }
   }
 
