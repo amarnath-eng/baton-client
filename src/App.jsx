@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, ScrollRestoration } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { checkAuthSession } from './store/authSlice.js'
@@ -9,8 +9,11 @@ import LandingPage from './pages/LandingPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
-import DashboardPage from './pages/DashboardPage.jsx'
 import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
+
+// Lazy-loaded Authenticated Workspace Chunk (separated from public/marketing bundle)
+const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx'))
+import WorkspaceLoadingScreen from './components/feedback/WorkspaceLoadingScreen.jsx'
 
 // Root layout that renders active child route and restores scroll to top
 function RootLayout() {
@@ -67,7 +70,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: ROUTES.DASHBOARD,
-            element: <DashboardPage />,
+            element: (
+              <Suspense fallback={<WorkspaceLoadingScreen />}>
+                <DashboardPage />
+              </Suspense>
+            ),
           },
         ],
       },

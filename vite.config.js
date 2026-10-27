@@ -13,5 +13,23 @@ export default defineConfig({
       strict: false,
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-react',
+              test: /node_modules[\\/](react|react-dom|react-router-dom)/,
+            },
+            {
+              name: 'vendor-redux',
+              test: /node_modules[\\/](@reduxjs|react-redux)/,
+            }
+          ]
+        }
+      }
+    }
+  }
 })
 
