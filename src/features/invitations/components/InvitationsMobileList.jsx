@@ -3,6 +3,7 @@ import StatusBadge from './StatusBadge.jsx'
 import ExpandableNote from './ExpandableNote.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
 import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { INVITATION_STATUS } from '../../../constants/invitations.js'
 
 /**
  * Mobile card list view for Sent Invitations
@@ -81,7 +82,7 @@ export default function InvitationsMobileList({
             </div>
 
             {/* Generated Invite Link (Available for copying directly) */}
-            {inv.status === 'pending' && inviteUrl && (
+            {inv.status === INVITATION_STATUS.PENDING && inviteUrl && (
               <CopyInviteLink
                 inviteUrl={inviteUrl}
                 id={inv._id}
@@ -97,7 +98,7 @@ export default function InvitationsMobileList({
             )}
 
             {/* Actions for Pending Invitations */}
-            {inv.status === 'pending' && canInvite && (
+            {inv.status === INVITATION_STATUS.PENDING && canInvite && (
               <div className="pt-2 border-t border-zinc-900">
                 {confirmingRevokeId === inv._id ? (
                   <div className="flex items-center gap-2 animate-in fade-in duration-150">

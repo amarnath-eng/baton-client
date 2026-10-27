@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { ROUTES } from '../../routes/paths.js'
 import { Shimmer } from '../../components/ui/Shimmer.jsx'
 import { useDeferredLoading } from '../../hooks/useDeferredLoading.js'
+import { USER_ROLES } from '../../constants/roles.js'
 
 export function AcceptInviteCard() {
   const [searchParams] = useSearchParams()
@@ -193,9 +194,9 @@ export function AcceptInviteCard() {
   }
 
   const roleBadgeColors = {
-    admin: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-    manager: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    engineer: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    [USER_ROLES.ADMIN]: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    [USER_ROLES.MANAGER]: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    [USER_ROLES.ENGINEER]: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   }
 
   return (

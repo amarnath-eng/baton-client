@@ -1,17 +1,19 @@
+import { USER_ROLES } from '../../constants/roles.js'
+
 export function RolePreferenceSelector({ role, onChange }) {
   const roles = [
     {
-      id: 'engineer',
+      id: USER_ROLES.ENGINEER,
       title: 'Engineer',
-      desc: 'Create, manage & verify handovers.',
+      desc: 'Create, manage & sign-off handovers.',
     },
     {
-      id: 'manager',
+      id: USER_ROLES.MANAGER,
       title: 'Manager',
-      desc: 'Oversee team & approve handovers.',
+      desc: 'Oversee team & review handovers.',
     },
     {
-      id: 'admin',
+      id: USER_ROLES.ADMIN,
       title: 'Admin',
       desc: 'Full workspace & team access.',
     },

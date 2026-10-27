@@ -4,6 +4,7 @@ import ExpandableNote from './ExpandableNote.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
 import RejectActionBox from './RejectActionBox.jsx'
 import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { ACCESS_REQUEST_STATUS } from '../../../constants/accessRequests.js'
 
 /**
  * Mobile card list view for Access Requests
@@ -88,7 +89,7 @@ export default function AccessRequestsMobileList({
             </div>
 
             {/* Generated Invite Link (Available for copying directly) */}
-            {req.status === 'approved' && inviteUrl && (
+            {req.status === ACCESS_REQUEST_STATUS.APPROVED && inviteUrl && (
               <CopyInviteLink
                 inviteUrl={inviteUrl}
                 id={req._id}
@@ -104,7 +105,7 @@ export default function AccessRequestsMobileList({
             )}
 
             {/* Actions for Pending Requests */}
-            {req.status === 'pending' && (
+            {req.status === ACCESS_REQUEST_STATUS.PENDING && (
               <div className="pt-2 border-t border-zinc-900">
                 {confirmingRejectId === req._id ? (
                   <RejectActionBox

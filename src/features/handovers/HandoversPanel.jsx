@@ -6,10 +6,12 @@ import { useDeferredLoading } from '../../hooks/useDeferredLoading.js'
 import HandoverCard from './components/HandoverCard.jsx'
 import HandoverCardSkeleton from './components/HandoverCardSkeleton.jsx'
 import CreateHandoverModal from './components/CreateHandoverModal.jsx'
+import { USER_ROLES } from '../../constants/roles.js'
+import { HANDOVER_STATUS } from '../../constants/handover.js'
 
 export default function HandoversPanel() {
   const { role: currentUserRole } = useSelector((state) => state.auth)
-  const canCreate = currentUserRole === 'admin' || currentUserRole === 'manager'
+  const canCreate = currentUserRole === USER_ROLES.ADMIN || currentUserRole === USER_ROLES.MANAGER
 
   const {
     handovers,
@@ -41,7 +43,7 @@ export default function HandoversPanel() {
     },
     {
       label: 'Draft',
-      value: 'draft',
+      value: HANDOVER_STATUS.DRAFT,
       icon: (
         <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -50,7 +52,7 @@ export default function HandoversPanel() {
     },
     {
       label: 'In Preparation',
-      value: 'in_preparation',
+      value: HANDOVER_STATUS.IN_PREPARATION,
       icon: (
         <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -58,8 +60,8 @@ export default function HandoversPanel() {
       ),
     },
     {
-      label: 'Verification',
-      value: 'verification',
+      label: 'Under Review',
+      value: HANDOVER_STATUS.SUBMITTED_FOR_REVIEW,
       icon: (
         <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -67,8 +69,17 @@ export default function HandoversPanel() {
       ),
     },
     {
+      label: 'Ready for Sign-off',
+      value: HANDOVER_STATUS.READY_FOR_ACKNOWLEDGEMENT,
+      icon: (
+        <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        </svg>
+      ),
+    },
+    {
       label: 'Completed',
-      value: 'completed',
+      value: HANDOVER_STATUS.COMPLETED,
       icon: (
         <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 opacity-75" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

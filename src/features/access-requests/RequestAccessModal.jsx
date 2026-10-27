@@ -8,6 +8,7 @@ import { EmailOtpVerifier } from '../auth/components/EmailOtpVerifier.jsx'
 import { RolePreferenceSelector } from './RolePreferenceSelector.jsx'
 import { RequestAccessSuccess } from './RequestAccessSuccess.jsx'
 import { submitAccessRequestApi } from '../../services/accessRequestApi.js'
+import { USER_ROLES } from '../../constants/roles.js'
 
 export function RequestAccessModal({
   isOpen,
@@ -20,7 +21,7 @@ export function RequestAccessModal({
 }) {
   const [fullName, setFullName] = useState(initialFullName)
   const [email, setEmail] = useState(initialEmail)
-  const [role, setRole] = useState('engineer')
+  const [role, setRole] = useState(USER_ROLES.ENGINEER)
   const [verificationToken, setVerificationToken] = useState(initialVerificationToken)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')

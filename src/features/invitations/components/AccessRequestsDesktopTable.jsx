@@ -11,6 +11,7 @@ import StatusBadge from './StatusBadge.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
 import RejectActionBox from './RejectActionBox.jsx'
 import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { ACCESS_REQUEST_STATUS } from '../../../constants/accessRequests.js'
 
 /**
  * Desktop table view for Access Requests
@@ -64,7 +65,7 @@ export default function AccessRequestsDesktopTable({
                   <StatusBadge status={req.status} />
                 </TableCell>
                 <TableCell className="text-right">
-                  {req.status === 'pending' ? (
+                  {req.status === ACCESS_REQUEST_STATUS.PENDING ? (
                     confirmingRejectId === req._id ? (
                       <RejectActionBox
                         requestId={req._id}
@@ -143,7 +144,7 @@ export default function AccessRequestsDesktopTable({
                             {req.reviewedBy?.fullName || req.reviewedBy?.email || 'Admin'}
                           </span>
                         </div>
-                        {req.status === 'approved' && inviteUrl && (
+                        {req.status === ACCESS_REQUEST_STATUS.APPROVED && inviteUrl && (
                           <CopyInviteLink
                             inviteUrl={inviteUrl}
                             id={req._id}

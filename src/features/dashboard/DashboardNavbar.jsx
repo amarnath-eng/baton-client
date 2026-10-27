@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import DashboardBrand from './DashboardBrand.jsx'
 import DashboardNavTabs from './DashboardNavTabs.jsx'
 import DashboardUserMenu from './DashboardUserMenu.jsx'
+import { USER_ROLES } from '../../constants/roles.js'
 
 export default function DashboardNavbar({
   activeTab = 'handovers',
@@ -11,7 +12,7 @@ export default function DashboardNavbar({
   const { role } = useSelector((state) => state.auth)
   const [isOverflowing, setIsOverflowing] = useState(false)
 
-  const isPrivileged = role === 'admin' || role === 'manager'
+  const isPrivileged = role === USER_ROLES.ADMIN || role === USER_ROLES.MANAGER
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#09090b]/85 backdrop-blur-2xl">

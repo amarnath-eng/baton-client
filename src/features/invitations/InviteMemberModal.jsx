@@ -4,13 +4,14 @@ import { createInvitationApi } from '../../services/invitationApi.js'
 import { Button } from '../../components/ui/Button.jsx'
 import { Input } from '../../components/ui/Input.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
+import { USER_ROLES } from '../../constants/roles.js'
 
 export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated }) {
   const { role: currentUserRole } = useSelector((state) => state.auth)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [role, setRole] = useState('engineer')
+  const [role, setRole] = useState(USER_ROLES.ENGINEER)
   const [message, setMessage] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -42,21 +43,21 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
   }, [])
 
   // Allowed roles based on role hierarchy
-  const availableRoles = currentUserRole === 'admin'
+  const availableRoles = currentUserRole === USER_ROLES.ADMIN
     ? [
-        { value: 'engineer', label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
-        { value: 'manager', label: 'Engineering Manager — Reviews & signs off handovers', shortLabel: 'Engineering Manager' },
-        { value: 'admin', label: 'Admin — Full workspace control & team management', shortLabel: 'Admin' },
+        { value: USER_ROLES.ENGINEER, label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
+        { value: USER_ROLES.MANAGER, label: 'Engineering Manager — Reviews & signs off handovers', shortLabel: 'Engineering Manager' },
+        { value: USER_ROLES.ADMIN, label: 'Admin — Full workspace control & team management', shortLabel: 'Admin' },
       ]
     : [
-        { value: 'engineer', label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
+        { value: USER_ROLES.ENGINEER, label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
       ]
 
   useEffect(() => {
     if (isOpen) {
       setName('')
       setEmail('')
-      setRole('engineer')
+      setRole(USER_ROLES.ENGINEER)
       setMessage('')
       setError(null)
       setGeneratedInvite(null)

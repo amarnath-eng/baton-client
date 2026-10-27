@@ -3,11 +3,12 @@ import { useSelector } from 'react-redux'
 import { getAccessRequestsApi, reviewAccessRequestApi } from '../../../services/accessRequestApi.js'
 import { getInvitationsApi, revokeInvitationApi } from '../../../services/invitationApi.js'
 import { useWindowFocus } from '../../../hooks/useWindowFocus.js'
+import { USER_ROLES } from '../../../constants/roles.js'
 
 export function useTeamManagement(activeTab = 'requests') {
   const { role: currentUserRole } = useSelector((state) => state.auth)
-  const isAdmin = currentUserRole === 'admin'
-  const canInvite = currentUserRole === 'admin' || currentUserRole === 'manager'
+  const isAdmin = currentUserRole === USER_ROLES.ADMIN
+  const canInvite = currentUserRole === USER_ROLES.ADMIN || currentUserRole === USER_ROLES.MANAGER
 
   const [requests, setRequests] = useState([])
   const [invitations, setInvitations] = useState([])

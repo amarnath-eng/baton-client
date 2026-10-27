@@ -9,6 +9,7 @@ import {
 import { Button } from '../../../components/ui/Button.jsx'
 import StatusBadge from './StatusBadge.jsx'
 import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { INVITATION_STATUS } from '../../../constants/invitations.js'
 
 /**
  * Desktop table view for Sent Invitations
@@ -65,7 +66,7 @@ export default function InvitationsDesktopTable({
                   <StatusBadge status={inv.status} />
                 </TableCell>
                 <TableCell className="text-right">
-                  {inv.status === 'pending' && canInvite ? (
+                  {inv.status === INVITATION_STATUS.PENDING && canInvite ? (
                     confirmingRevokeId === inv._id ? (
                       <div className="flex items-center justify-end gap-1.5 animate-in fade-in duration-150">
                         <Button
