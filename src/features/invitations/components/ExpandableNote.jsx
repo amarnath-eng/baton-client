@@ -1,30 +1,57 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 /**
- * ExpandableNote component with safe overflow wrapping and read more / collapse toggle
+ * ExpandableNote component with container-width overflow detection
+ * and industry-standard "Show more" / "Show less" toggling.
  */
-export default function ExpandableNote({ note, maxChars = 48 }) {
+export default function ExpandableNote({ note, label = 'Note:' }) {
   const [isExpanded, setIsExpanded] = useState(false)
-  if (!note || !note.trim()) return null
+  const [hasOverflow, setHasOverflow] = useState(false)
+  const textRef = useRef(null)
 
+  if (!note || !note.trim()) return null
   const trimmed = note.trim()
-  const isLong = trimmed.length > maxChars
+
+  useEffect(() => {
+    const el = textRef.current
+    if (el) {
+      // Check if text content physically overflows the available container width
+      setHasOverflow(el.scrollWidth > el.clientWidth)
+    }
+  }, [trimmed])
 
   return (
-    <div className="text-[11px] text-zinc-400 leading-snug min-w-0 break-words [overflow-wrap:anywhere]">
-      <span className="font-medium text-zinc-500">Note: </span>
-      <span className="text-zinc-300 italic break-words [overflow-wrap:anywhere]">
-        "{!isExpanded && isLong ? `${trimmed.slice(0, maxChars)}…` : trimmed}"
+    <div
+      className={`text-[11px] text-zinc-400 leading-normal min-w-0 flex ${
+        isExpanded ? 'items-start' : 'items-center'
+      } gap-1.5`}
+    >
+      {label && (
+        <span className="font-semibold text-zinc-400 shrink-0 font-mono text-[10px] uppercase tracking-wider">
+          {label}
+        </span>
+      )}
+
+      <span
+        ref={textRef}
+        className={`text-zinc-300 italic min-w-0 ${
+          isExpanded ? 'break-words whitespace-normal' : 'truncate'
+        }`}
+        title={!isExpanded ? trimmed : undefined}
+      >
+        "{trimmed}"
       </span>
-      {isLong && (
+
+      {(hasOverflow || isExpanded) && (
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="inline-block ml-1 text-zinc-400 hover:text-white underline font-medium cursor-pointer not-italic text-[10px] whitespace-nowrap"
+          className="text-zinc-400 hover:text-white font-medium text-[10px] shrink-0 hover:underline cursor-pointer transition-colors ml-1 font-mono select-none"
         >
-          {isExpanded ? 'collapse' : 'read more'}
+          {isExpanded ? 'Show less' : 'Show more'}
         </button>
       )}
     </div>
   )
 }
+
