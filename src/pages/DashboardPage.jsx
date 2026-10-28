@@ -1,37 +1,48 @@
-import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import DashboardNavbar from '../features/dashboard/DashboardNavbar.jsx'
-import { TeamManagementPanel } from '../features/invitations/index.js'
-import { HandoversPanel } from '../features/handovers/index.js'
+import { ROUTES, DASHBOARD_ROUTES } from '../routes/paths.js'
+import { RoleGuard } from '../routes/RoleGuard.jsx'
+import { USER_ROLES } from '../constants/roles.js'
+
+// Direct static imports bundled into the authenticated dashboard chunk
+import HandoversPanel from '../features/handovers/HandoversPanel.jsx'
+import TeamManagementPanel from '../features/invitations/TeamManagementPanel.jsx'
+import AuditLogPanel from '../features/dashboard/AuditLogPanel.jsx'
+
+// Clean dictionary mapping tabs to their panels (Zero nested ternaries!)
+const TAB_COMPONENTS = {
+  [DASHBOARD_ROUTES.HANDOVERS]: <HandoversPanel />,
+  [DASHBOARD_ROUTES.TEAM]: (
+    <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.MANAGER]}>
+      <TeamManagementPanel />
+    </RoleGuard>
+  ),
+  [DASHBOARD_ROUTES.AUDIT]: <AuditLogPanel />,
+}
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('handovers')
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Dynamically derive active tab from registered DASHBOARD_ROUTES
+  const activeTab =
+    Object.values(DASHBOARD_ROUTES).find((tab) =>
+      location.pathname.startsWith(`${ROUTES.DASHBOARD}/${tab}`)
+    ) || DASHBOARD_ROUTES.HANDOVERS
+
+  // Dynamic single-line tab navigation
+  const handleTabChange = (tab) => navigate(`${ROUTES.DASHBOARD}/${tab}`)
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-zinc-800">
-      {/* Consistent Industry-Standard Navbar */}
       <DashboardNavbar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
-      {/* Main Workspace Body */}
+      {/* Main Workspace Body - 0ms instant switching from memory */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-8">
-        {activeTab === 'handovers' && (
-          <HandoversPanel />
-        )}
-
-        {activeTab === 'team' && (
-          <TeamManagementPanel />
-        )}
-
-        {activeTab === 'audit' && (
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-6 shadow-sm">
-            <h2 className="text-base font-semibold text-white">Audit Log</h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Tamper-proof, append-only record of all handover state transitions and access reviews.
-            </p>
-          </div>
-        )}
+        {TAB_COMPONENTS[activeTab] || <HandoversPanel />}
       </main>
     </div>
   )

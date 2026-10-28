@@ -1,4 +1,3 @@
-import React from 'react'
 import { Shimmer } from './Shimmer.jsx'
 import HandoverCardSkeleton from '../../features/handovers/components/HandoverCardSkeleton.jsx'
 

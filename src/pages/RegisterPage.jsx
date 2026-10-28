@@ -1,4 +1,5 @@
-import { AuthLayout, RegisterForm } from '../features/auth/index.js'
+import { AuthLayout } from '../features/auth/components/AuthLayout.jsx'
+import { RegisterForm } from '../features/auth/register/RegisterForm.jsx'
 
 export default function RegisterPage() {
   return (
