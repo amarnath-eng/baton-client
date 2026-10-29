@@ -1,8 +1,8 @@
-import { DASHBOARD_ROUTES } from '../../routes/paths'
+import { ROUTES } from '../../routes/paths'
 
 const NAV_TABS = [
   {
-    id: DASHBOARD_ROUTES.HANDOVERS,
+    id: ROUTES.DASHBOARD_HANDOVERS,
     label: 'Handovers',
     icon: (
       <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -12,7 +12,7 @@ const NAV_TABS = [
     privilegedOnly: false,
   },
   {
-    id: DASHBOARD_ROUTES.TEAM,
+    id: ROUTES.DASHBOARD_TEAM,
     label: 'Team & Access',
     icon: (
       <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@ const NAV_TABS = [
     privilegedOnly: true,
   },
   {
-    id: DASHBOARD_ROUTES.AUDIT,
+    id: ROUTES.DASHBOARD_AUDIT,
     label: 'Audit Log',
     icon: (
       <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@ const NAV_TABS = [
 ]
 
 export default function DashboardNavTabs({
-  activeTab = DASHBOARD_ROUTES.HANDOVERS,
+  activeTab = ROUTES.DASHBOARD_HANDOVERS,
   onTabChange,
   isPrivileged = false,
   variant = 'desktop',

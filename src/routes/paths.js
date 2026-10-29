@@ -1,17 +1,6 @@
 /**
  * Single Source of Truth (SSOT) for Application Route Paths
  */
-const DASHBOARD_BASE = '/dashboard'
-
-/**
- * Relative sub-route path segments for Dashboard tabs
- */
-export const DASHBOARD_ROUTES = Object.freeze({
-  HANDOVERS: 'handovers',
-  TEAM: 'team',
-  AUDIT: 'audit',
-})
-
 export const ROUTES = Object.freeze({
   HOME: '/',
   LOGIN: '/login',
@@ -19,12 +8,12 @@ export const ROUTES = Object.freeze({
   FORGOT_PASSWORD: '/forgot-password',
   ACCEPT_INVITE: '/invite/accept',
 
-  // Dashboard & Sub-routes (Composed dynamically from DASHBOARD_ROUTES)
-  DASHBOARD: DASHBOARD_BASE,
-  DASHBOARD_HANDOVERS: `${DASHBOARD_BASE}/${DASHBOARD_ROUTES.HANDOVERS}`,
-  DASHBOARD_HANDOVER_DETAIL: `${DASHBOARD_BASE}/${DASHBOARD_ROUTES.HANDOVERS}/:id`,
-  DASHBOARD_TEAM: `${DASHBOARD_BASE}/${DASHBOARD_ROUTES.TEAM}`,
-  DASHBOARD_AUDIT: `${DASHBOARD_BASE}/${DASHBOARD_ROUTES.AUDIT}`,
+  // Dashboard & Workspaces
+  DASHBOARD: '/dashboard',
+  DASHBOARD_HANDOVERS: '/dashboard/handovers',
+  DASHBOARD_HANDOVER_DETAIL: '/dashboard/handovers/:id',
+  DASHBOARD_TEAM: '/dashboard/team',
+  DASHBOARD_AUDIT: '/dashboard/audit',
 })
 
 /**

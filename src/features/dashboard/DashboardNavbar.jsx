@@ -4,10 +4,10 @@ import DashboardBrand from './DashboardBrand.jsx'
 import DashboardNavTabs from './DashboardNavTabs.jsx'
 import DashboardUserMenu from './DashboardUserMenu.jsx'
 import { USER_ROLES } from '../../constants/roles.js'
-import { DASHBOARD_ROUTES } from '../../routes/paths.js'
+import { ROUTES } from '../../routes/paths.js'
 
 export default function DashboardNavbar({
-  activeTab = DASHBOARD_ROUTES.HANDOVERS,
+  activeTab = ROUTES.DASHBOARD_HANDOVERS,
   onTabChange,
 }) {
   const { role } = useSelector((state) => state.auth)

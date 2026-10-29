@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import DashboardNavbar from '../features/dashboard/DashboardNavbar.jsx'
-import { ROUTES, DASHBOARD_ROUTES } from '../routes/paths.js'
+import { ROUTES } from '../routes/paths.js'
 import { RoleGuard } from '../routes/RoleGuard.jsx'
 import { USER_ROLES } from '../constants/roles.js'
 
@@ -9,29 +9,34 @@ import HandoversPanel from '../features/handovers/HandoversPanel.jsx'
 import TeamManagementPanel from '../features/invitations/TeamManagementPanel.jsx'
 import AuditLogPanel from '../features/dashboard/AuditLogPanel.jsx'
 
-// Clean dictionary mapping tabs to their panels (Zero nested ternaries!)
+// Clean dictionary mapping routes to their panels (Zero nested ternaries!)
 const TAB_COMPONENTS = {
-  [DASHBOARD_ROUTES.HANDOVERS]: <HandoversPanel />,
-  [DASHBOARD_ROUTES.TEAM]: (
+  [ROUTES.DASHBOARD_HANDOVERS]: <HandoversPanel />,
+  [ROUTES.DASHBOARD_TEAM]: (
     <RoleGuard allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.MANAGER]}>
       <TeamManagementPanel />
     </RoleGuard>
   ),
-  [DASHBOARD_ROUTES.AUDIT]: <AuditLogPanel />,
+  [ROUTES.DASHBOARD_AUDIT]: <AuditLogPanel />,
 }
+
+const DASHBOARD_TABS = [
+  ROUTES.DASHBOARD_HANDOVERS,
+  ROUTES.DASHBOARD_TEAM,
+  ROUTES.DASHBOARD_AUDIT,
+]
 
 export default function DashboardPage() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Dynamically derive active tab from registered DASHBOARD_ROUTES
+  // Dynamically derive active tab from registered tab routes
   const activeTab =
-    Object.values(DASHBOARD_ROUTES).find((tab) =>
-      location.pathname.startsWith(`${ROUTES.DASHBOARD}/${tab}`)
-    ) || DASHBOARD_ROUTES.HANDOVERS
+    DASHBOARD_TABS.find((tabRoute) => location.pathname.startsWith(tabRoute)) ||
+    ROUTES.DASHBOARD_HANDOVERS
 
-  // Dynamic single-line tab navigation
-  const handleTabChange = (tab) => navigate(`${ROUTES.DASHBOARD}/${tab}`)
+  // Direct route navigation
+  const handleTabChange = (tabRoute) => navigate(tabRoute)
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-zinc-800">
