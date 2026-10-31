@@ -1,6 +1,17 @@
+import { useNavigate } from 'react-router-dom'
 import HandoverStatusBadge from './HandoverStatusBadge.jsx'
+import { buildRoute } from '../../../routes/paths.js'
 
 export default function HandoverCard({ handover, onSelect }) {
+  const navigate = useNavigate()
+
+  const handleCardClick = () => {
+    if (onSelect) {
+      onSelect(handover)
+    } else {
+      navigate(buildRoute.handoverDetail(handover._id))
+    }
+  }
   const deadlineStr = handover.deadline
     ? new Date(handover.deadline).toLocaleDateString('en-US', {
         month: 'short',
@@ -11,7 +22,7 @@ export default function HandoverCard({ handover, onSelect }) {
 
   return (
     <div
-      onClick={() => onSelect?.(handover)}
+      onClick={handleCardClick}
       className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-5 hover:border-zinc-700 transition cursor-pointer space-y-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">

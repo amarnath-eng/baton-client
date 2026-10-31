@@ -6,6 +6,7 @@ import { USER_ROLES } from '../constants/roles.js'
 
 // Direct static imports bundled into the authenticated dashboard chunk
 import HandoversPanel from '../features/handovers/HandoversPanel.jsx'
+import HandoverDetailWorkspace from '../features/handovers/HandoverDetailWorkspace.jsx'
 import TeamManagementPanel from '../features/invitations/TeamManagementPanel.jsx'
 import AuditLogPanel from '../features/dashboard/AuditLogPanel.jsx'
 
@@ -30,6 +31,10 @@ export default function DashboardPage() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  // Detect if currently viewing a single handover's detail workspace
+  // Matches /dashboard/handovers/:id (where id is a valid identifier segment)
+  const isHandoverDetail = /^\/dashboard\/handovers\/[^/]+$/.test(location.pathname)
+
   // Dynamically derive active tab from registered tab routes
   const activeTab =
     DASHBOARD_TABS.find((tabRoute) => location.pathname.startsWith(tabRoute)) ||
@@ -47,7 +52,11 @@ export default function DashboardPage() {
 
       {/* Main Workspace Body - 0ms instant switching from memory */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-8">
-        {TAB_COMPONENTS[activeTab] || <HandoversPanel />}
+        {isHandoverDetail ? (
+          <HandoverDetailWorkspace />
+        ) : (
+          TAB_COMPONENTS[activeTab] || <HandoversPanel />
+        )}
       </main>
     </div>
   )

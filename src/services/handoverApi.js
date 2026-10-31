@@ -42,3 +42,56 @@ export async function createHandoverApi(payload, options = {}) {
     ...options,
   })
 }
+
+/**
+ * 4. Update a single section of a handover (Autosave or Manual)
+ * @param {string} id
+ * @param {{ sectionKey: string, content: string, isComplete: boolean }} payload
+ */
+export async function updateHandoverSectionApi(id, payload, options = {}) {
+  return request(`/handovers/${id}/section`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+    defaultError: 'Failed to update section content.',
+    ...options,
+  })
+}
+
+/**
+ * 5. Submit handover for review (Requires all 6 sections to be complete)
+ * @param {string} id
+ */
+export async function submitHandoverForReviewApi(id, options = {}) {
+  return request(`/handovers/${id}/submit`, {
+    method: 'POST',
+    defaultError: 'Failed to submit handover for review.',
+    ...options,
+  })
+}
+
+/**
+ * 6. Review handover: Approve or Request Revision (Manager/Admin)
+ * @param {string} id
+ * @param {{ action: 'approve' | 'request_revision', reviewNotes?: string }} payload
+ */
+export async function reviewHandoverApi(id, payload, options = {}) {
+  return request(`/handovers/${id}/review`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    defaultError: 'Failed to submit review decision.',
+    ...options,
+  })
+}
+
+/**
+ * 7. Acknowledge handover: Final sign-off by incoming engineer
+ * @param {string} id
+ */
+export async function acknowledgeHandoverApi(id, options = {}) {
+  return request(`/handovers/${id}/acknowledge`, {
+    method: 'POST',
+    defaultError: 'Failed to acknowledge handover.',
+    ...options,
+  })
+}
+
