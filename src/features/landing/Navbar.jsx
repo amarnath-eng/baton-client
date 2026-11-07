@@ -15,11 +15,8 @@ export function Navbar() {
   const isChecking = status === AUTH_STATUS.LOADING || status === AUTH_STATUS.IDLE
 
   const navLinks = [
-    { href: '#problem', label: 'Problem' },
-    { href: '#readiness', label: 'Readiness Engine' },
-    { href: '#modules', label: 'Handover Modules' },
-    { href: '#workflow', label: 'Workflow' },
-    { href: '#roles', label: 'Roles' },
+    { href: '#why-baton', label: 'Why Baton' },
+    { href: '#how-it-works', label: 'How It Works' },
   ]
 
   const closeMenu = () => {

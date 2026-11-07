@@ -1,166 +1,123 @@
 import { useState } from 'react'
 import { Card } from '../../components/ui/Card.jsx'
-import { Button } from '../../components/ui/Button.jsx'
 
 export function ReadinessSimulator() {
-  // State for the 7 server-side readiness rules
   const [checks, setChecks] = useState({
     managerReview: true,
     requiredSections: true,
-    taskOwnership: false,
     noBlockingIssues: false,
-    verificationChecklist: false,
-    authorizedMember: true,
-    eligibleState: true,
+    verificationChecklist: true,
   })
-
-  const [acknowledged, setAcknowledged] = useState(false)
 
   const toggleCheck = (key) => {
     setChecks((prev) => ({ ...prev, [key]: !prev[key] }))
-    setAcknowledged(false)
   }
 
-  const rulesList = [
+  const rules = [
     {
       key: 'managerReview',
-      title: '1. Manager Review Accepted',
-      desc: 'Manager formally validated completeness & accepted for verification',
+      title: 'Manager Review Approved',
+      desc: 'Manager formally validated completeness and allowed verification.',
     },
     {
       key: 'requiredSections',
-      title: '2. All Handover Modules Complete',
-      desc: 'No mandatory documentation module left empty or unverified',
-    },
-    {
-      key: 'taskOwnership',
-      title: '3. Critical Tasks Have Owner & Next Action',
-      desc: 'No orphan critical unfinished tasks left without an assigned engineer',
+      title: '6 Structured Modules Complete',
+      desc: 'Architecture, runbooks, and decisions are documented.',
     },
     {
       key: 'noBlockingIssues',
-      title: '4. Zero Open or Unverified Blocking Issues',
-      desc: 'All critical & high severity bugs are resolved and re-verified',
+      title: 'Zero Blocking Issues Open',
+      desc: 'All critical and high-severity issues verified & closed.',
     },
     {
       key: 'verificationChecklist',
-      title: '5. Incoming Verification Checklist Signed Off',
-      desc: 'Incoming engineer verified local build, tests, and configuration',
-    },
-    {
-      key: 'authorizedMember',
-      title: '6. Authorized Company Member',
-      desc: 'Incoming engineer verified to have active membership in company',
-    },
-    {
-      key: 'eligibleState',
-      title: '7. Eligible State (Not Already Completed)',
-      desc: 'Handover is in verification status and eligible for completion',
+      title: 'Incoming Local Setup Verified',
+      desc: 'Incoming engineer successfully ran smoke tests locally.',
     },
   ]
 
   const passedCount = Object.values(checks).filter(Boolean).length
-  const totalCount = rulesList.length
-  const isReady = passedCount === totalCount
+  const isReady = passedCount === rules.length
 
   return (
-    <section id="readiness" className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8">
-      <Card className="border-zinc-800/80 bg-[#0c0c0e] p-6 sm:p-10 shadow-2xl">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-zinc-800">
+    <section id="readiness" className="mx-auto max-w-7xl px-4 py-16 sm:py-20 sm:px-6 lg:px-8">
+      <div className="rounded-3xl border border-zinc-800/80 bg-zinc-950/80 p-6 sm:p-12 shadow-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-8 border-b border-zinc-800">
           <div>
-            <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-              The Core Engine &bull; Section 7
+            <span className="text-xs font-mono uppercase tracking-wider text-emerald-400">
+              Interactive Engine
             </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1">
-              Server-Side Readiness Simulator
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">
+              Server-Side Readiness Engine
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-xl">
-              The backend computes readiness from persisted database records. It rejects
-              acknowledgement if even a single check fails. Click checks below to test:
+              Baton never relies on a simple client checkbox. The server evaluates live database records before allowing final sign-off. Click below to test the rules:
             </p>
           </div>
 
-          {/* Verdict Card */}
+          {/* Verdict Box */}
           <div
-            className={`rounded-2xl border p-5 text-center w-full lg:w-auto lg:min-w-[280px] transition-all duration-300 ${
+            className={`rounded-2xl border p-5 text-center min-w-[260px] transition-all duration-200 ${
               isReady
-                ? 'border-emerald-500/40 bg-emerald-950/20 shadow-lg shadow-emerald-500/5'
-                : 'border-zinc-800 bg-zinc-900/60 shadow-lg'
+                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
             }`}
           >
-            <span className="text-xs uppercase font-mono tracking-wider text-zinc-400 block mb-1">
-              Server API Verdict
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block mb-1">
+              Server Gate Verdict
             </span>
-            <div
-              className={`text-sm sm:text-base font-bold tracking-tight ${
-                isReady ? 'text-emerald-400' : 'text-amber-400'
-              }`}
-            >
-              {isReady ? 'READY FOR ACKNOWLEDGEMENT' : 'BLOCKED FROM COMPLETION'}
+            <div className="text-sm font-bold tracking-tight">
+              {isReady ? 'READY FOR SIGN-OFF' : 'BLOCKED FROM COMPLETION'}
             </div>
-            <div className="mt-2 text-xs font-mono text-zinc-500">
-              {passedCount} of {totalCount} mandatory rules passed
-            </div>
+            <p className="text-[11px] text-zinc-400 mt-1 font-mono">
+              {passedCount} of {rules.length} checks passing
+            </p>
           </div>
         </div>
 
-        {/* Check Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-8">
-          {rulesList.map((rule) => {
-            const isPassed = checks[rule.key]
+        {/* 4 Clickable Rule Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-8">
+          {rules.map((rule) => {
+            const passed = checks[rule.key]
             return (
               <button
                 key={rule.key}
                 type="button"
                 onClick={() => toggleCheck(rule.key)}
-                className={`p-4 rounded-xl border text-left transition-all duration-150 cursor-pointer flex items-start gap-3 ${
-                  isPassed
-                    ? 'border-emerald-500/30 bg-emerald-950/20 text-emerald-300 hover:border-emerald-500/50'
-                    : 'border-zinc-800/80 bg-zinc-900/30 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/60'
+                className={`text-left p-4 rounded-xl border transition-all duration-150 cursor-pointer flex items-start justify-between gap-3 ${
+                  passed
+                    ? 'border-emerald-500/30 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08]'
+                    : 'border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70'
                 }`}
               >
-                <span className="text-xs sm:text-sm shrink-0 mt-0.5 font-bold">
-                  {isPassed ? '✓' : '○'}
-                </span>
                 <div>
-                  <h4 className="font-semibold text-xs text-zinc-200">
+                  <h4 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        passed ? 'bg-emerald-400' : 'bg-zinc-600'
+                      }`}
+                    />
                     {rule.title}
                   </h4>
-                  <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-zinc-400 mt-1 pl-4">
                     {rule.desc}
                   </p>
                 </div>
+
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded border shrink-0 ${
+                    passed
+                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                      : 'border-zinc-700 bg-zinc-800 text-zinc-400'
+                  }`}
+                >
+                  {passed ? 'PASSED' : 'BLOCKED'}
+                </span>
               </button>
             )
           })}
-
-          {/* Acknowledgement Simulation Box */}
-          <div className="p-4 rounded-xl border border-zinc-800 bg-black/60 flex flex-col justify-between">
-            <div>
-              <span className="text-xs font-mono text-zinc-300 block font-semibold">
-                Simulate POST /acknowledge
-              </span>
-              <p className="text-[11px] text-zinc-400 mt-1">
-                {isReady
-                  ? 'All 7 checks pass. Incoming engineer can sign off.'
-                  : 'Backend refuses acknowledgement until 100% of checks pass.'}
-              </p>
-            </div>
-
-            <div className="mt-3">
-              <Button
-                variant={isReady ? 'primary' : 'secondary'}
-                disabled={!isReady}
-                onClick={() => setAcknowledged(true)}
-                className="w-full text-xs py-2"
-              >
-                {acknowledged ? 'Acknowledged & Audited ✓' : 'Acknowledge Handover'}
-              </Button>
-            </div>
-          </div>
         </div>
-      </Card>
+      </div>
     </section>
   )
 }

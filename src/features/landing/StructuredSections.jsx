@@ -1,95 +1,74 @@
-import { Badge } from '../../components/ui/Badge.jsx'
-import { Card } from '../../components/ui/Card.jsx'
-
 export function StructuredSections() {
-  const sections = [
+  const modules = [
     {
-      id: 'A',
+      num: '01',
       title: 'Completed Work',
-      tag: 'Features & Architecture',
-      desc: 'Features delivered, architecture summaries, key code paths, pull request links, and system boundaries.',
-      rule: 'Must contain non-empty architecture summary and at least 1 reference link.',
+      desc: 'Architecture overview, delivered features, key code paths, and PR links.',
     },
     {
-      id: 'B',
-      title: 'Pending Tasks & Next Actions',
-      tag: 'Ownership & Priority',
-      desc: 'What remains unfinished, priority ranking, assigned owner, and immediate next action.',
-      rule: 'Every critical unfinished task must have an assigned owner and a next action.',
+      num: '02',
+      title: 'In-Flight Tasks',
+      desc: 'Unfinished PRs, priorities, and assigned owners with immediate next actions.',
     },
     {
-      id: 'C',
+      num: '03',
       title: 'Bugs & Blockers',
-      tag: 'Technical Debt',
-      desc: 'Known bugs, severity levels, reproduction steps, current workarounds, and resolution status.',
-      rule: 'Zero open critical or high severity bugs allowed at acknowledgement.',
+      desc: 'Known technical debt, reproduction notes, and workarounds tracked as issues.',
     },
     {
-      id: 'D',
-      title: 'Technical Decisions (ADRs)',
-      tag: 'Architecture Records',
-      desc: 'Key architectural decisions made, reasoning, evaluated trade-offs, and rejected alternatives.',
-      rule: 'Captures why decisions were made so the new team does not repeat past mistakes.',
+      num: '04',
+      title: 'Technical Decisions',
+      desc: 'Architectural Decision Records (ADRs) explaining trade-offs and rationale.',
     },
     {
-      id: 'E',
+      num: '05',
       title: 'Dependencies & Risks',
-      tag: 'External Systems',
-      desc: 'Third-party APIs, dependent teams, environment credentials requirements, and failure modes.',
-      rule: 'All external dependencies documented with known failure modes and contacts.',
+      desc: 'Third-party APIs, infra bottlenecks, single points of failure, and team contacts.',
     },
     {
-      id: 'F',
-      title: 'Setup & Operational Steps',
-      tag: 'Local Runbook',
-      desc: 'Local setup runbook, non-secret configuration variables, health checks, and troubleshooting guides.',
-      rule: 'Receiver must successfully follow runbook and sign off local verification.',
+      num: '06',
+      title: 'Setup Runbook',
+      desc: 'Local environment bootstrap steps, non-secret env vars, and sanity smoke tests.',
     },
   ]
 
   return (
-    <section id="modules" className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="text-xs font-mono uppercase tracking-wider text-zinc-400">
-          Module Architecture &bull; Section 5
+    <section id="modules" className="mx-auto max-w-7xl px-4 py-16 sm:py-20 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <span className="text-xs font-mono uppercase tracking-wider text-emerald-400">
+          Standardized Structure
         </span>
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mt-1">
-          Structured Handover Modules
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-2">
+          6 Modules. Zero orphan tasks.
         </h2>
         <p className="mt-2 text-xs sm:text-sm text-zinc-400">
-          No giant unformatted text files. Every handover is organized into structured,
-          verifiable modules, each with its own completion criteria.
+          No endless unformatted text. Every handover is organized into verified, reviewable sections.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {sections.map((sec) => (
-          <Card key={sec.id} hover className="flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-800 font-mono text-xs font-bold text-white border border-zinc-700">
-                  {sec.id}
-                </span>
-                <Badge variant="zinc">{sec.tag}</Badge>
-              </div>
-
-              <h3 className="text-sm sm:text-base font-bold text-white">
-                {sec.title}
-              </h3>
-              <p className="mt-2 text-xs text-zinc-400 leading-relaxed">
-                {sec.desc}
-              </p>
-            </div>
-
-            <div className="mt-5 pt-3 border-t border-zinc-800/80">
-              <span className="text-[10px] uppercase font-mono text-zinc-500 block mb-0.5">
-                Validation Rule
+      {/* 6 Clean Scannable Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {modules.map((m) => (
+          <div
+            key={m.num}
+            className="rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-6 space-y-3 hover:border-zinc-700 transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs font-bold text-zinc-400">
+                {m.num}
               </span>
-              <p className="text-[11px] text-zinc-300 font-medium">
-                {sec.rule}
-              </p>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </div>
-          </Card>
+
+            <h3 className="text-base font-bold text-white tracking-tight">
+              {m.title}
+            </h3>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              {m.desc}
+            </p>
+          </div>
         ))}
       </div>
     </section>
