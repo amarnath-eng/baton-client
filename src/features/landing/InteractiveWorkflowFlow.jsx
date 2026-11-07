@@ -180,10 +180,10 @@ export function InteractiveWorkflowFlow() {
         </div>
 
         {/* Transition Divider */}
-        <div className="flex items-center justify-center py-1">
-          <div className="flex items-center gap-2 px-3 py-0.5 rounded-full border border-zinc-800/80 bg-zinc-900/60 text-[11px] font-mono text-zinc-400">
+        <div className="flex items-center justify-center py-1.5">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-3.5 py-1.5 sm:py-0.5 rounded-xl sm:rounded-full border border-zinc-800/80 bg-zinc-900/60 text-[10.5px] sm:text-[11px] font-mono text-zinc-300 text-center shadow-sm">
             <span>Documentation Approved</span>
-            <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
             <span>Handed to Incoming Engineer</span>
