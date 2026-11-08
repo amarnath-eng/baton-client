@@ -51,7 +51,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Workspace Body - 0ms instant switching from memory */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-1.5 pb-6 sm:pt-4 sm:pb-8">
         {isHandoverDetail ? (
           <HandoverDetailWorkspace />
         ) : (

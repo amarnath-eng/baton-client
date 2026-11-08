@@ -4,6 +4,7 @@ import SelectDropdown from '../../../components/ui/SelectDropdown.jsx'
 /**
  * Single Responsibility: Renders the team subnav tabs, mobile dropdown selector,
  * status sub-filters with counter badges, and the primary "Invite Member" action button.
+ * Sticky pinned below the dashboard navbar with seamless background & blur.
  */
 export default function TeamSubnavToolbar({
   isAdmin,
@@ -17,9 +18,9 @@ export default function TeamSubnavToolbar({
   requestFilterOptions,
 }) {
   return (
-    <>
+    <div className="sticky top-[var(--dashboard-navbar-height,90px)] md:top-[var(--dashboard-navbar-height,64px)] z-30 bg-black/95 backdrop-blur-md -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-2 sm:py-2.5 space-y-2 border-b border-zinc-800/80 shadow-sm transition-all">
       {/* Sleek Action & Subnav Toolbar */}
-      <div className="flex items-center justify-between gap-3 border-b border-zinc-800/80 pb-3 sm:pb-4">
+      <div className="flex items-center justify-between gap-3">
         {/* Mobile: Ultra-Modern Dropdown Selector */}
         <div className="sm:hidden">
           <SelectDropdown
@@ -81,7 +82,7 @@ export default function TeamSubnavToolbar({
 
       {/* Requests Status Sub-filters (All, Pending, Approved, Rejected) */}
       {activeTab === 'requests' && isAdmin && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 no-scrollbar touch-pan-x">
           {requestFilterOptions.map((f) => {
             const isActive = requestFilter === f.value
             return (
@@ -89,16 +90,16 @@ export default function TeamSubnavToolbar({
                 key={f.value}
                 type="button"
                 onClick={() => setRequestFilter(f.value)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition cursor-pointer inline-flex items-center gap-1.5 shrink-0 outline-none focus:outline-none select-none ${
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition cursor-pointer inline-flex items-center gap-1.5 shrink-0 outline-none focus:outline-none select-none ${
                   isActive
-                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700/80 font-semibold'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent'
+                    ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700 font-semibold'
+                    : 'bg-zinc-900/70 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850 border border-zinc-800/70'
                 }`}
               >
                 <span>{f.label}</span>
                 <span
-                  className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 pt-0.5 text-[10px] font-mono font-medium leading-none rounded-full ${
-                    isActive ? 'bg-zinc-700 text-white' : 'bg-zinc-900 text-zinc-400'
+                  className={`inline-flex items-center justify-center min-w-[17px] h-[17px] px-1 text-[10px] font-mono font-medium leading-none rounded-full ${
+                    isActive ? 'bg-zinc-700 text-white' : 'bg-zinc-800 text-zinc-400'
                   }`}
                 >
                   {f.count}
@@ -108,7 +109,7 @@ export default function TeamSubnavToolbar({
           })}
         </div>
       )}
-    </>
+    </div>
   )
 }
 

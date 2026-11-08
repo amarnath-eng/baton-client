@@ -79,20 +79,20 @@ export default function HandoverReviewModal({
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-900">
+          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-900">
             <Button
               type="button"
               variant="outline"
               disabled={loading}
               onClick={onClose}
-              className="text-xs"
+              className="flex-1 sm:flex-initial sm:w-40 justify-center text-xs"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className={`text-xs ${
+              className={`flex-1 sm:flex-initial sm:w-40 justify-center text-xs ${
                 isRevision
                   ? 'bg-rose-600 hover:bg-rose-500 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-500 text-white'

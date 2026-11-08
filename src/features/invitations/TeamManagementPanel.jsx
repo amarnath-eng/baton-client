@@ -124,7 +124,7 @@ export default function TeamManagementPanel() {
   ]
 
   return (
-    <div className="space-y-3 sm:space-y-6">
+    <div className="space-y-2 sm:space-y-3.5">
       {/* Notifications */}
       {error && (
         <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 py-1.5 px-3 text-xs text-rose-400 flex items-center justify-between">

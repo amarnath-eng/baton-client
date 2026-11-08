@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import DashboardBrand from './DashboardBrand.jsx'
 import DashboardNavTabs from './DashboardNavTabs.jsx'
@@ -12,11 +12,29 @@ export default function DashboardNavbar({
 }) {
   const { role } = useSelector((state) => state.auth)
   const [isOverflowing, setIsOverflowing] = useState(false)
+  const headerRef = useRef(null)
 
   const isPrivileged = role === USER_ROLES.ADMIN || role === USER_ROLES.MANAGER
 
+  useEffect(() => {
+    const updateHeight = () => {
+      if (headerRef.current) {
+        document.documentElement.style.setProperty(
+          '--dashboard-navbar-height',
+          `${headerRef.current.offsetHeight}px`
+        )
+      }
+    }
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [activeTab, isPrivileged])
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#09090b]/85 backdrop-blur-2xl">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#09090b]/85 backdrop-blur-2xl"
+    >
       <div className="mx-auto grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] h-14 sm:h-16 max-w-7xl items-center px-3 sm:px-4">
         {/* Column 1: Brand & Breadcrumb */}
         <DashboardBrand

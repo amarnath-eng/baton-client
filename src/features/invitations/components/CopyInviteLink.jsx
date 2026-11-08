@@ -66,10 +66,29 @@ export default function CopyInviteLink({
 
     return (
       <div className="flex items-center justify-between gap-2 bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-xs">
-        <span className="text-[11px] text-zinc-400 font-medium font-mono truncate">
+        <span className="text-[11px] text-zinc-400 font-medium font-mono truncate flex items-center gap-1.5">
           {activeTime ? (
             <>
-              Invite Active Time:{' '}
+              <svg
+                className={`w-3.5 h-3.5 shrink-0 ${
+                  activeTime.isExpired
+                    ? 'text-rose-400'
+                    : activeTime.isUrgent
+                    ? 'text-amber-400'
+                    : 'text-zinc-400'
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="hidden sm:inline">Invite Active Time:</span>
               <span
                 className={`font-semibold ${
                   activeTime.isExpired
@@ -83,7 +102,22 @@ export default function CopyInviteLink({
               </span>
             </>
           ) : (
-            '7-day invite active'
+            <>
+              <svg
+                className="w-3.5 h-3.5 text-zinc-400 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>7-day invite active</span>
+            </>
           )}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">

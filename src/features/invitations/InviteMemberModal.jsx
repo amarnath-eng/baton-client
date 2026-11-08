@@ -85,7 +85,13 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
           </div>
 
           <div className="pt-2 border-t border-zinc-800/80 flex justify-end">
-            <Button type="button" size="sm" variant="primary" onClick={onClose} className="w-full sm:w-auto">
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              onClick={onClose}
+              className="w-full sm:w-40 justify-center"
+            >
               Done
             </Button>
           </div>
@@ -167,13 +173,14 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-zinc-800/80">
+          <div className="flex items-center justify-end gap-2.5 pt-3 mt-1 border-t border-zinc-800/80">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={onClose}
               disabled={loading}
+              className="flex-1 sm:flex-initial sm:w-40 justify-center"
             >
               Cancel
             </Button>
@@ -183,6 +190,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
               size="sm"
               loading={loading}
               disabled={loading || isCheckingEmpId || Boolean(employeeIdError)}
+              className="flex-1 sm:flex-initial sm:w-40 justify-center"
             >
               Dispatch Invitation
             </Button>

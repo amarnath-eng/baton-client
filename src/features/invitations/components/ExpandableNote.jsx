@@ -39,7 +39,7 @@ export default function ExpandableNote({ note, label = 'Note:' }) {
         className={`text-zinc-300 italic align-baseline ${
           isExpanded
             ? 'whitespace-pre-line break-words'
-            : 'inline-block max-w-[calc(100%-110px)] truncate align-bottom'
+            : `inline-block ${label ? 'max-w-[calc(100%-110px)]' : 'max-w-[calc(100%-75px)]'} truncate align-bottom`
         }`}
         title={!isExpanded ? trimmed : undefined}
       >

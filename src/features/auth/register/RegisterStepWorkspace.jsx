@@ -99,16 +99,12 @@ export function RegisterStepWorkspace({
         {!isSlugTaken && formData.workspaceSlug.length >= 3 && (
           <div className="space-y-3 pt-1">
             {!isNameCollision && (
-              <div className="px-3.5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs animate-in fade-in duration-150">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                  <span className="text-emerald-300 font-medium truncate">
-                    <code className="text-white font-mono font-semibold">batondev.in/{formData.workspaceSlug}</code> is available.
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-semibold shrink-0">
-                  Available
-                </span>
+              <div className="px-3.5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2.5 text-xs animate-in fade-in duration-150">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 mt-1" />
+                <p className="text-emerald-300 font-medium leading-relaxed break-words">
+                  <code className="text-white font-mono font-semibold break-words">batondev.in/{formData.workspaceSlug}</code>{' '}
+                  is available.
+                </p>
               </div>
             )}
 

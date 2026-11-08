@@ -168,6 +168,7 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
             size="sm"
             onClick={onClose}
             disabled={submitting}
+            className="flex-1 sm:flex-initial sm:w-40 justify-center"
           >
             Cancel
           </Button>
@@ -176,6 +177,7 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
             variant="primary"
             size="sm"
             loading={submitting}
+            className="flex-1 sm:flex-initial sm:w-40 justify-center"
           >
             Initialize Handover
           </Button>
