@@ -10,7 +10,7 @@ import { ACCESS_REQUEST_STATUS } from '../../../constants/accessRequests.js'
  * Mobile card list view for Access Requests
  */
 export default function AccessRequestsMobileList({
-  requests,
+  requests = [],
   actionLoadingId,
   confirmingRejectId,
   setConfirmingRejectId,
@@ -41,16 +41,16 @@ export default function AccessRequestsMobileList({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 truncate">
-                    <h3 className="text-xs font-semibold text-white tracking-tight truncate">
+                    <h3 className="text-sm font-semibold text-white tracking-[0.025em] truncate">
                       {req.name}
                     </h3>
                     {req.employeeId && (
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700/60 shrink-0 font-medium">
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700/60 shrink-0 font-medium tracking-wider">
                         {req.employeeId}
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] text-zinc-400 font-mono truncate">
+                  <p className="text-xs text-zinc-400 tracking-[0.02em] truncate">
                     {req.email}
                   </p>
                 </div>
@@ -115,8 +115,8 @@ export default function AccessRequestsMobileList({
 
             {/* Connected Inset Review Note Callout */}
             {req.reviewNotes && (
-              <div className="px-3 py-2 rounded-lg bg-zinc-900/50 border border-zinc-800/60 flex items-center gap-2 text-xs">
-                <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="px-3 py-2 rounded-lg bg-zinc-900/50 border border-zinc-800/60 flex items-start gap-2 text-xs">
+                <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 <div className="flex-1 min-w-0">
@@ -129,14 +129,19 @@ export default function AccessRequestsMobileList({
             {req.status === ACCESS_REQUEST_STATUS.PENDING && (
               <div className="pt-2 border-t border-zinc-900">
                 {confirmingRejectId === req._id ? (
-                  <RejectActionBox
-                    requestId={req._id}
-                    req={req}
-                    actionLoadingId={actionLoadingId}
-                    onReview={onReview}
-                    onCancel={() => setConfirmingRejectId(null)}
-                    layout="mobile"
-                  />
+                  <div className="space-y-2 pt-1">
+                    <p className="text-[11px] text-zinc-400 font-medium">
+                      Decline <span className="text-white font-semibold">{req.name}</span>'s request:
+                    </p>
+                    <RejectActionBox
+                      requestId={req._id}
+                      req={req}
+                      actionLoadingId={actionLoadingId}
+                      onReview={onReview}
+                      onCancel={() => setConfirmingRejectId(null)}
+                      layout="mobile"
+                    />
+                  </div>
                 ) : confirmingApproveId === req._id ? (
                   <div className="flex items-center gap-2 animate-in fade-in duration-150">
                     <Button

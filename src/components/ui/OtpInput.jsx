@@ -187,6 +187,8 @@ export function OtpInput({
         inputMode="numeric"
         pattern="[0-9]*"
         maxLength={2}
+        spellCheck={false}
+        autoCorrect="off"
         value={digit}
         onChange={(e) => handleChange(e, index)}
         onKeyDown={(e) => handleKeyDown(e, index)}

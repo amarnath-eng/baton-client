@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PHASE_1_STEPS, PHASE_2_STEPS, CORE_MODULES } from './data/workflowSteps.js'
 
 export function InteractiveWorkflowFlow() {
   const [highlightModules, setHighlightModules] = useState(false)
@@ -12,86 +13,6 @@ export function InteractiveWorkflowFlow() {
       setTimeout(() => setHighlightModules(false), 2200)
     }
   }
-
-  const phase1Steps = [
-    {
-      number: '01',
-      title: 'Manager Creates Handover',
-      role: 'Engineering Manager',
-      description:
-        'The manager creates the handover workspace, specifies the service name, assigns the Outgoing and Incoming Engineers, and sets the deadline.',
-      badge: '✓ Clear ownership from day one',
-    },
-    {
-      number: '02',
-      title: 'Write the 6 Modules',
-      role: 'Outgoing Engineer',
-      isModulesStep: true,
-      description:
-        'The outgoing engineer documents local setup commands, working .env keys, in-flight PR branches, and architecture decisions before submission.',
-      badge: '✓ 6 structured modules enforced',
-    },
-    {
-      number: '03',
-      title: 'Manager Review',
-      role: 'Engineering Manager',
-      description:
-        'The manager verifies completeness. If any API key or repo link is missing, changes are requested before the incoming engineer tests.',
-      badge: '✓ Prevents incomplete handovers',
-    },
-  ]
-
-  const phase2Steps = [
-    {
-      number: '04',
-      title: 'Two-Way Verification',
-      role: 'Incoming Engineer',
-      description:
-        'The incoming engineer runs setup steps locally. Any failure is logged as a blocker issue that must be fixed and re-tested before sign-off.',
-      badge: '✓ Only incoming engineer verifies fixes',
-    },
-    {
-      number: '05',
-      title: 'Check & Sign-Off',
-      role: 'Readiness Gate',
-      description:
-        'Baton automatically verifies 100% of tasks have owners, all 6 modules are complete, and zero blockers remain before recording the audit trail.',
-      badge: '✓ Permanent audit trail recorded',
-    },
-  ]
-
-  const modules = [
-    {
-      number: '01',
-      title: 'Completed Work',
-      description: 'Delivered features, architecture overview, and PR/repository links.',
-    },
-    {
-      number: '02',
-      title: 'Pending Tasks',
-      description: 'Unfinished PRs, active branch names, priorities, and assigned owners.',
-    },
-    {
-      number: '03',
-      title: 'Bugs & Blockers',
-      description: 'Known bugs, flaky tests, edge cases, technical debt, and workarounds.',
-    },
-    {
-      number: '04',
-      title: 'Technical Decisions',
-      description: 'Architecture Decision Records (ADRs), trade-offs considered, and rationale.',
-    },
-    {
-      number: '05',
-      title: 'Dependencies & Risks',
-      description: 'Third-party APIs, vendor credentials, failure points, and team contacts.',
-    },
-    {
-      number: '06',
-      title: 'Setup Instructions',
-      description: 'Local environment run commands, sample test data, and .env keys.',
-    },
-  ]
 
   return (
     <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-8 sm:py-10 sm:px-6 lg:px-8 border-t border-zinc-900/80">
@@ -120,7 +41,7 @@ export function InteractiveWorkflowFlow() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
-            {phase1Steps.map((step) => (
+            {PHASE_1_STEPS.map((step) => (
               <div
                 key={step.number}
                 className="rounded-2xl border border-zinc-800/80 bg-zinc-950 p-4 sm:p-5 flex flex-col justify-between space-y-3 hover:border-zinc-700 transition-colors shadow-sm"
@@ -200,7 +121,7 @@ export function InteractiveWorkflowFlow() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
-            {phase2Steps.map((step) => (
+            {PHASE_2_STEPS.map((step) => (
               <div
                 key={step.number}
                 className="rounded-2xl border border-zinc-800/80 bg-zinc-950 p-4 sm:p-5 flex flex-col justify-between space-y-3 hover:border-zinc-700 transition-colors shadow-sm"
@@ -261,7 +182,7 @@ export function InteractiveWorkflowFlow() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
-          {modules.map((m) => (
+          {CORE_MODULES.map((m) => (
             <div
               key={m.number}
               className="p-4 rounded-xl border border-zinc-800/60 bg-zinc-900/40 space-y-2 hover:border-zinc-700/60 transition"

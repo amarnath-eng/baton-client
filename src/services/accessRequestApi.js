@@ -1,6 +1,34 @@
 import { request } from './apiClient.js'
 
 /**
+ * 0a. Check Employee ID availability within a specific company
+ * @param {{ companySlug: string, employeeId: string }} params
+ */
+export async function checkEmployeeIdInCompanyApi({ companySlug, employeeId }, options = {}) {
+  const query = new URLSearchParams({
+    companySlug: companySlug.trim(),
+    employeeId: employeeId.trim(),
+  })
+  return request(`/access-requests/check-employee-id?${query.toString()}`, {
+    defaultError: 'Failed to check Employee ID availability.',
+    ...options,
+  })
+}
+
+/**
+ * 0b. Send OTP specifically for access request (verifies email is not already an active member of the company)
+ * @param {{ email: string, companySlug: string }} payload
+ */
+export async function sendAccessRequestOtpApi({ email, companySlug }, options = {}) {
+  return request('/access-requests/send-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, companySlug }),
+    defaultError: 'Failed to send verification code.',
+    ...options,
+  })
+}
+
+/**
  * 1. Submit an access request to join an existing company workspace
  * @param {{ fullName: string, email: string, companySlug: string, role: string, verificationToken: string }} payload
  */

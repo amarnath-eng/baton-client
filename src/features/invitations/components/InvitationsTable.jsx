@@ -14,6 +14,7 @@ export default function InvitationsTable({
   actionLoadingId = null,
   canInvite = false,
   onRevoke,
+  onReinvite,
 }) {
   const [confirmingRevokeId, setConfirmingRevokeId] = useState(null)
   const { copiedId, copyToClipboard } = useClipboardCopy()
@@ -48,6 +49,7 @@ export default function InvitationsTable({
     copiedId,
     onCopy: copyToClipboard,
     onRevoke,
+    onReinvite,
     now,
   }
 

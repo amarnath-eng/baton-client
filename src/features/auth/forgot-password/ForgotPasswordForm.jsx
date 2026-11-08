@@ -1,135 +1,40 @@
-import { useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Input } from '../../../components/ui/Input.jsx'
 import { Button } from '../../../components/ui/Button.jsx'
 import { EmailOtpVerifier } from '../components/EmailOtpVerifier.jsx'
-import { sendPasswordResetOtpApi, resetPasswordApi } from '../../../services/authApi.js'
+import { sendPasswordResetOtpApi } from '../../../services/authApi.js'
 import { ROUTES } from '../../../routes/paths.js'
+import { useForgotPassword } from './useForgotPassword.js'
+import { ForgotPasswordSuccess } from './ForgotPasswordSuccess.jsx'
 
+/**
+ * Single Responsibility: Presentational form orchestrating the forgot-password flow,
+ * delegating mutation state to useForgotPassword and confirmation to ForgotPasswordSuccess.
+ */
 export function ForgotPasswordForm() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [verificationToken, setVerificationToken] = useState(null)
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  const [isSuccess, setIsSuccess] = useState(false)
-  const abortControllerRef = useRef(null)
+  const {
+    email,
+    handleEmailChange,
+    verificationToken,
+    handleEmailVerified,
+    password,
+    handlePasswordInput,
+    handlePasswordKeyDown,
+    confirmPassword,
+    handleConfirmPasswordInput,
+    handleConfirmPasswordKeyDown,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    isSubmitting,
+    error,
+    isSuccess,
+    handleSubmit,
+  } = useForgotPassword()
 
-  // Clean up in-flight reset request on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
-
-  // Smart password input: block leading spaces, allow Diceware multi-word passphrases
-  const handlePasswordKeyDown = (e) => {
-    if (e.key === ' ' && !password) {
-      e.preventDefault()
-    }
-  }
-
-  const handleConfirmPasswordKeyDown = (e) => {
-    if (e.key === ' ' && !confirmPassword) {
-      e.preventDefault()
-    }
-  }
-
-  const handlePasswordInput = (e) => {
-    const val = e.target.value.replace(/^\s+/, '')
-    setPassword(val)
-    if (error) setError('')
-  }
-
-  const handleConfirmPasswordInput = (e) => {
-    const val = e.target.value.replace(/^\s+/, '')
-    setConfirmPassword(val)
-    if (error) setError('')
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!verificationToken) {
-      setError('Please verify your work email with the OTP code first.')
-      return
-    }
-
-    const cleanPassword = password.trim()
-    const cleanConfirm = confirmPassword.trim()
-
-    if (!cleanPassword || cleanPassword.length < 8) {
-      setError('New password must be at least 8 characters long.')
-      return
-    }
-
-    if (cleanPassword !== cleanConfirm) {
-      setError('Passwords do not match. Please re-enter your new password.')
-      return
-    }
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    const controller = new AbortController()
-    abortControllerRef.current = controller
-
-    try {
-      setIsSubmitting(true)
-      setError('')
-      await resetPasswordApi(
-        {
-          email: email.trim(),
-          password: cleanPassword,
-          verificationToken,
-        },
-        { signal: controller.signal }
-      )
-      if (!controller.signal.aborted) {
-        setIsSuccess(true)
-      }
-    } catch (err) {
-      if (err.name === 'AbortError' || controller.signal.aborted) return
-      setError(err.message || 'Failed to reset password. Please try again.')
-    } finally {
-      if (!controller.signal.aborted) {
-        setIsSubmitting(false)
-      }
-    }
-  }
-
-  // 1. Success Screen once password is reset
   if (isSuccess) {
-    return (
-      <div className="w-full max-w-md mx-auto space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
-        <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-sm">
-          ✓
-        </div>
-        <div className="space-y-1.5">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Password Reset Successfully!
-          </h2>
-          <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-            Your account password has been updated. You can now sign in to your workspace with your new credentials.
-          </p>
-        </div>
-
-        <div className="pt-2">
-          <Link
-            to={ROUTES.LOGIN}
-            className="inline-flex items-center justify-center w-full px-5 py-2.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-200 transition active:scale-95 shadow-sm"
-          >
-            Sign In to Workspace
-          </Link>
-        </div>
-      </div>
-    )
+    return <ForgotPasswordSuccess />
   }
 
   return (
@@ -167,15 +72,8 @@ export function ForgotPasswordForm() {
           email={email}
           initialToken={verificationToken}
           sendOtpFn={sendPasswordResetOtpApi}
-          onEmailChange={(e) => {
-            setEmail(e.target.value.replace(/\s+/g, ''))
-            setVerificationToken(null)
-            setError('')
-          }}
-          onVerified={(token) => {
-            setVerificationToken(token)
-            setError('')
-          }}
+          onEmailChange={handleEmailChange}
+          onVerified={handleEmailVerified}
         />
 
         {/* Step 2: Set New Password (unlocked once email is verified) */}

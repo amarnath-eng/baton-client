@@ -88,6 +88,36 @@ export function useTeamManagement(activeTab = 'requests') {
     setActionLoadingId(id)
     setError(null)
     setNotification(null)
+
+    // Optimistic local state update for instant zero-latency UI removal/transition
+    if (action === 'reject') {
+      setRequests((prev) =>
+        prev.map((r) =>
+          r._id === id
+            ? {
+                ...r,
+                status: 'rejected',
+                reviewNotes: reviewNotes?.trim() || '',
+                reviewedAt: new Date().toISOString(),
+              }
+            : r
+        )
+      )
+    } else if (action === 'approve') {
+      setRequests((prev) =>
+        prev.map((r) =>
+          r._id === id
+            ? {
+                ...r,
+                status: 'approved',
+                requestedRole: requestedRole || r.requestedRole,
+                reviewedAt: new Date().toISOString(),
+              }
+            : r
+        )
+      )
+    }
+
     try {
       const response = await reviewAccessRequestApi(
         id,

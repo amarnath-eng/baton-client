@@ -21,7 +21,7 @@ export function Table({
         className={`overflow-x-auto overflow-y-auto ${maxHeight} scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent`}
       >
         <table
-          className={`w-full text-left text-xs min-w-full border-collapse ${className}`}
+          className={`w-full text-left text-xs min-w-full border-separate border-spacing-0 ${className}`}
           {...props}
         >
           {children}
@@ -67,7 +67,7 @@ export function TableRow({ children, className = '', ...props }) {
 export function TableHead({ children, className = '', ...props }) {
   return (
     <th
-      className={`py-3 px-4 text-[11px] text-zinc-400 uppercase tracking-wider font-semibold whitespace-nowrap ${className}`}
+      className={`py-3 px-4 text-[11px] text-zinc-400 uppercase tracking-wider font-semibold whitespace-nowrap border-b border-zinc-800/80 bg-zinc-900/95 ${className}`}
       {...props}
     >
       {children}

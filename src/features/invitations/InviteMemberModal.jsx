@@ -1,35 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
-import { createInvitationApi } from '../../services/invitationApi.js'
+import { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/Button.jsx'
 import { Input } from '../../components/ui/Input.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
-import { USER_ROLES } from '../../constants/roles.js'
+import { useInviteMemberForm } from './hooks/useInviteMemberForm.js'
 
-export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated }) {
-  const { role: currentUserRole } = useSelector((state) => state.auth)
-
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [employeeId, setEmployeeId] = useState('')
-  const [role, setRole] = useState(USER_ROLES.ENGINEER)
-  const [message, setMessage] = useState('')
-
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [generatedInvite, setGeneratedInvite] = useState(null)
-  const [copied, setCopied] = useState(false)
-  const abortControllerRef = useRef(null)
-
-  // Clean up in-flight invite request on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
-
+/**
+ * Single Responsibility: Presentational modal dialog for inviting or re-inviting
+ * team members to the workspace. Delegates form state and validation to useInviteMemberForm.
+ */
+export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated, initialData = null }) {
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') return window.innerWidth < 640
     return false
@@ -43,115 +22,44 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Allowed roles based on role hierarchy
-  const availableRoles = currentUserRole === USER_ROLES.ADMIN
-    ? [
-        { value: USER_ROLES.ENGINEER, label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
-        { value: USER_ROLES.MANAGER, label: 'Engineering Manager — Reviews & signs off handovers', shortLabel: 'Engineering Manager' },
-        { value: USER_ROLES.ADMIN, label: 'Admin — Full workspace control & team management', shortLabel: 'Admin' },
-      ]
-    : [
-        { value: USER_ROLES.ENGINEER, label: 'Engineer — Continuous handover contributor', shortLabel: 'Engineer' },
-      ]
-
-  useEffect(() => {
-    if (isOpen) {
-      setName('')
-      setEmail('')
-      setEmployeeId('')
-      setRole(USER_ROLES.ENGINEER)
-      setMessage('')
-      setError(null)
-      setGeneratedInvite(null)
-      setCopied(false)
-    }
-  }, [isOpen])
-
-  // Live sanitization for member name: disallow leading spaces
-  function handleNameChange(e) {
-    const raw = e.target.value
-    if (raw.startsWith(' ')) return
-    setName(raw)
-  }
-
-  // Live sanitization for email: disallow all whitespace
-  function handleEmailChange(e) {
-    setEmail(e.target.value.replace(/\s+/g, ''))
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setError(null)
-
-    if (!name.trim()) {
-      setError('Please provide the team member’s name.')
-      return
-    }
-    if (!employeeId.trim()) {
-      setError('Please provide the team member’s Employee ID.')
-      return
-    }
-    if (!email.trim() || !email.includes('@')) {
-      setError('Please provide a valid work email address.')
-      return
-    }
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-    const controller = new AbortController()
-    abortControllerRef.current = controller
-
-    setLoading(true)
-    try {
-      const response = await createInvitationApi(
-        {
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          employeeId: employeeId.trim().toUpperCase() || undefined,
-          role,
-          message: message.trim() || undefined,
-        },
-        { signal: controller.signal }
-      )
-
-      if (!controller.signal.aborted) {
-        if (response?.inviteUrl) {
-          console.log('[Baton Invitation Link]:', response.inviteUrl)
-        }
-        setGeneratedInvite(response)
-        onInvitationCreated?.(response)
-      }
-    } catch (err) {
-      if (err.name === 'AbortError' || controller.signal.aborted) return
-      setError(err?.message || 'Failed to dispatch team invitation.')
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false)
-      }
-    }
-  }
-
-  async function handleCopyLink() {
-    if (!generatedInvite?.inviteUrl) return
-    try {
-      await navigator.clipboard.writeText(generatedInvite.inviteUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Fallback
-    }
-  }
+  const {
+    name,
+    email,
+    employeeId,
+    role,
+    setRole,
+    message,
+    setMessage,
+    employeeIdError,
+    emailError,
+    isCheckingEmpId,
+    alreadyMember,
+    pendingExists,
+    companyName,
+    loading,
+    error,
+    generatedInvite,
+    availableRoles,
+    handleNameChange,
+    handleEmailChange,
+    handleEmployeeIdChange,
+    handleEmployeeIdBlur,
+    handleSubmit,
+  } = useInviteMemberForm({ isOpen, initialData, onInvitationCreated })
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Invite Team Member"
-      subtitle="Send a 7-day role-verified invitation link to join your workspace."
+      title={initialData ? 'Re-invite Team Member' : 'Invite Team Member'}
+      subtitle={
+        initialData
+          ? `Dispatch a refreshed 7-day invitation link to ${initialData.name || initialData.email}.`
+          : 'Send a 7-day role-verified invitation link to join your workspace.'
+      }
       maxWidth="max-w-lg"
     >
-      {error && (
+      {error && !alreadyMember && !pendingExists && !employeeIdError && (
         <div className="mb-4 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-400">
           {error}
         </div>
@@ -185,6 +93,19 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
       ) : (
         /* Form */
         <form onSubmit={handleSubmit} className="space-y-3">
+          {alreadyMember && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-2 text-xs text-amber-300 text-left animate-in fade-in">
+              <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+              <span>This user is already an active member of {companyName || 'this workspace'}.</span>
+            </div>
+          )}
+
+          {pendingExists && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-300 text-left animate-in fade-in">
+              An active invitation or access request is already pending for this email.
+            </div>
+          )}
+
           <Input
             label="Full Name"
             type="text"
@@ -199,7 +120,10 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
             type="text"
             placeholder="e.g. EMP-1042"
             value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value.replace(/^\s+/, '').toUpperCase())}
+            inputClassName="font-mono tracking-wider uppercase"
+            onChange={handleEmployeeIdChange}
+            onBlur={handleEmployeeIdBlur}
+            error={employeeIdError}
             required
           />
 
@@ -209,6 +133,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
             placeholder="alex@company.com"
             value={email}
             onChange={handleEmailChange}
+            error={emailError}
             required
           />
 
@@ -257,6 +182,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
               variant="primary"
               size="sm"
               loading={loading}
+              disabled={loading || isCheckingEmpId || Boolean(employeeIdError)}
             >
               Dispatch Invitation
             </Button>

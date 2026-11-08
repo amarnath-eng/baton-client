@@ -1,7 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 :root {
   color-scheme: dark;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: 'cv05' 1, 'cv08' 1, 'zero' 1;
 }
 
 html {
@@ -17,9 +24,39 @@ body {
   color: #ededed;
   margin: 0;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv05' 1, 'cv08' 1, 'zero' 1;
+  letter-spacing: 0.015em;
+}
+
+/* Ensure disambiguation applies universally across all text, inputs, buttons, and tables */
+*,
+::before,
+::after {
+  font-feature-settings: 'cv05' 1, 'cv08' 1, 'zero' 1;
+}
+
+/* Form controls & interactive elements inherit disambiguation & legibility */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+  font-feature-settings: 'cv05' 1, 'cv08' 1, 'zero' 1;
+  letter-spacing: 0.018em;
+}
+
+/* Monospace, code, employee IDs, and workspace slugs */
+code,
+kbd,
+samp,
+pre,
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: 'zero' 1;
+  letter-spacing: 0.025em;
 }
 
 /* Minimalist Dark Scrollbar */

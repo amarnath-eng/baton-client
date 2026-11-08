@@ -1,25 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
-import { getCompanyMembersApi } from '../../../services/companyApi.js'
-import { createHandoverApi } from '../../../services/handoverApi.js'
+import { useState, useEffect } from 'react'
 import { Button } from '../../../components/ui/Button.jsx'
 import { Input } from '../../../components/ui/Input.jsx'
 import { Shimmer } from '../../../components/ui/Shimmer.jsx'
 import { Modal } from '../../../components/ui/Modal.jsx'
+import { useCreateHandoverForm } from '../hooks/useCreateHandoverForm.js'
 
+/**
+ * Single Responsibility: Presentational modal for creating a new engineering handover.
+ * Coordinates user input fields and delegates member loading, validation, and submission
+ * to useCreateHandoverForm.
+ */
 export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
-  const [members, setMembers] = useState([])
-  const [title, setTitle] = useState('')
-  const [project, setProject] = useState('')
-  const [reason, setReason] = useState('')
-  const [deadline, setDeadline] = useState('')
-  const [outgoingEngineerId, setOutgoingEngineerId] = useState('')
-  const [incomingEngineerId, setIncomingEngineerId] = useState('')
-
-  const [loadingMembers, setLoadingMembers] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState(null)
-  const submitAbortControllerRef = useRef(null)
-
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') return window.innerWidth < 640
     return false
@@ -33,104 +24,25 @@ export default function CreateHandoverModal({ isOpen, onClose, onCreated }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Clean up in-flight submission on unmount
-  useEffect(() => {
-    return () => {
-      if (submitAbortControllerRef.current) {
-        submitAbortControllerRef.current.abort()
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isOpen) return
-
-    setTitle('')
-    setProject('')
-    setReason('')
-    setDeadline('')
-    setOutgoingEngineerId('')
-    setIncomingEngineerId('')
-    setError(null)
-
-    const controller = new AbortController()
-    setLoadingMembers(true)
-
-    async function loadMembers() {
-      try {
-        const data = await getCompanyMembersApi({ signal: controller.signal })
-        if (!controller.signal.aborted) {
-          setMembers(data)
-        }
-      } catch (err) {
-        if (err.name === 'AbortError' || controller.signal.aborted) return
-        setError(err?.message || 'Failed to load workspace members.')
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoadingMembers(false)
-        }
-      }
-    }
-
-    loadMembers()
-
-    return () => {
-      controller.abort()
-    }
-  }, [isOpen])
-
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setError(null)
-
-    if (!title.trim() || !project.trim() || !reason.trim() || !deadline) {
-      setError('Please fill in all required fields.')
-      return
-    }
-
-    if (!outgoingEngineerId || !incomingEngineerId) {
-      setError('Please assign both outgoing and incoming engineers.')
-      return
-    }
-
-    if (outgoingEngineerId === incomingEngineerId) {
-      setError('Outgoing and incoming engineers cannot be the same person.')
-      return
-    }
-
-    if (submitAbortControllerRef.current) {
-      submitAbortControllerRef.current.abort()
-    }
-    const controller = new AbortController()
-    submitAbortControllerRef.current = controller
-
-    setSubmitting(true)
-    try {
-      const response = await createHandoverApi(
-        {
-          title: title.trim(),
-          project: project.trim(),
-          reason: reason.trim(),
-          deadline,
-          outgoingEngineerId,
-          incomingEngineerId,
-        },
-        { signal: controller.signal }
-      )
-
-      if (!controller.signal.aborted) {
-        onCreated?.(response)
-        onClose()
-      }
-    } catch (err) {
-      if (err.name === 'AbortError' || controller.signal.aborted) return
-      setError(err?.message || 'Failed to initialize handover.')
-    } finally {
-      if (!controller.signal.aborted) {
-        setSubmitting(false)
-      }
-    }
-  }
+  const {
+    members,
+    title,
+    setTitle,
+    project,
+    setProject,
+    reason,
+    setReason,
+    deadline,
+    setDeadline,
+    outgoingEngineerId,
+    setOutgoingEngineerId,
+    incomingEngineerId,
+    setIncomingEngineerId,
+    loadingMembers,
+    submitting,
+    error,
+    handleSubmit,
+  } = useCreateHandoverForm({ isOpen, onClose, onCreated })
 
   return (
     <Modal

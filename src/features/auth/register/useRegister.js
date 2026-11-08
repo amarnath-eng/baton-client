@@ -32,12 +32,18 @@ export function useRegister({ onSubmitSuccess } = {}) {
   const [verificationToken, setVerificationToken] = useState(null)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [slugStatus, setSlugStatus] = useState({
+  const [workspaceStatus, setWorkspaceStatus] = useState({
     isChecking: false,
-    exists: false,
-    companyName: '',
+    nameExists: false,
+    nameCompany: null,
+    slugExists: false,
+    slugCompany: null,
   })
   const [isRequestAccessOpen, setIsRequestAccessOpen] = useState(false)
+  const [requestAccessTarget, setRequestAccessTarget] = useState({
+    slug: '',
+    companyName: '',
+  })
 
   const isEmailVerified = Boolean(verificationToken)
 
@@ -102,9 +108,9 @@ export function useRegister({ onSubmitSuccess } = {}) {
     else if (!isEmailVerified) newErrors.email = 'Please verify your work email with OTP first'
 
     if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required'
-    if (!formData.workspaceSlug.trim()) newErrors.workspaceSlug = 'Workspace slug is required'
-    else if (slugStatus.exists) {
-      newErrors.workspaceSlug = `Workspace "${formData.workspaceSlug}" is taken. Choose another URL or click Request Access.`
+    if (!formData.workspaceSlug.trim()) newErrors.workspaceSlug = 'Workspace URL is required'
+    else if (workspaceStatus.slugExists) {
+      newErrors.workspaceSlug = `Workspace URL "${formData.workspaceSlug}" is taken. Choose another URL or click Request Access.`
     }
 
     if (!cleanPassword) newErrors.password = 'Password is required'
@@ -167,17 +173,25 @@ export function useRegister({ onSubmitSuccess } = {}) {
     verificationToken,
     errors,
     isSubmitting,
-    slugStatus,
+    workspaceStatus,
+    slugStatus: {
+      isChecking: workspaceStatus.isChecking,
+      exists: workspaceStatus.slugExists,
+      companyName: workspaceStatus.slugCompany?.name || workspaceStatus.nameCompany?.name || '',
+    },
     isEmailVerified,
     isRequestAccessOpen,
+    requestAccessTarget,
     setIsRequestAccessOpen,
+    setRequestAccessTarget,
     setVerificationToken,
     handleFullNameChange,
     handleEmployeeIdChange,
     handleEmailChange,
     handleCompanyChange,
     handleSlugChange,
-    handleSlugStatusChange: setSlugStatus,
+    handleWorkspaceStatusChange: setWorkspaceStatus,
+    handleSlugStatusChange: setWorkspaceStatus,
     handlePasswordChange,
     handleConfirmPasswordChange,
     handleSubmit,

@@ -1,57 +1,60 @@
 import { useState, useRef, useEffect } from 'react'
 
 /**
- * ExpandableNote component with container-width overflow detection
- * and industry-standard "Show more" / "Show less" toggling.
+ * ExpandableNote component with one-line default truncation,
+ * inline "Read more" placement right after line one ending,
+ * and multiline "Read less" toggling.
  */
 export default function ExpandableNote({ note, label = 'Note:' }) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [hasOverflow, setHasOverflow] = useState(false)
+  const [isOverflowing, setIsOverflowing] = useState(false)
   const textRef = useRef(null)
 
   if (!note || !note.trim()) return null
   const trimmed = note.trim()
+  const hasMultipleLines = trimmed.includes('\n')
 
   useEffect(() => {
     const el = textRef.current
     if (el) {
-      // Check if text content physically overflows the available container width
-      setHasOverflow(el.scrollWidth > el.clientWidth)
+      // Overflows if it contains newlines, or horizontal text exceeds single-line container
+      setIsOverflowing(hasMultipleLines || el.scrollWidth > el.clientWidth)
     }
-  }, [trimmed])
+  }, [trimmed, hasMultipleLines])
+
+  // When collapsed and has multiple lines, show the first line only
+  const firstLine = hasMultipleLines ? trimmed.split('\n')[0] : trimmed
+  const displayContent = !isExpanded && hasMultipleLines ? firstLine : trimmed
 
   return (
-    <div
-      className={`text-[11px] text-zinc-400 leading-normal min-w-0 flex ${
-        isExpanded ? 'items-start' : 'items-center'
-      } gap-1.5`}
-    >
+    <div className="text-[11px] text-zinc-400 leading-relaxed min-w-0">
       {label && (
-        <span className="font-semibold text-zinc-400 shrink-0 font-mono text-[10px] uppercase tracking-wider">
+        <span className="font-semibold text-zinc-400 font-mono text-[10px] uppercase tracking-wider select-none mr-1.5 align-baseline">
           {label}
         </span>
       )}
 
       <span
         ref={textRef}
-        className={`text-zinc-300 italic min-w-0 ${
-          isExpanded ? 'break-words whitespace-normal' : 'truncate'
+        className={`text-zinc-300 italic align-baseline ${
+          isExpanded
+            ? 'whitespace-pre-line break-words'
+            : 'inline-block max-w-[calc(100%-110px)] truncate align-bottom'
         }`}
         title={!isExpanded ? trimmed : undefined}
       >
-        "{trimmed}"
+        "{displayContent}"
       </span>
 
-      {(hasOverflow || isExpanded) && (
+      {(isOverflowing || isExpanded) && (
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-zinc-400 hover:text-white font-medium text-[10px] shrink-0 hover:underline cursor-pointer transition-colors ml-1 font-mono select-none"
+          className="text-zinc-400 hover:text-white font-medium text-[11px] hover:underline cursor-pointer transition-colors ml-1.5 select-none whitespace-nowrap inline-flex items-center align-baseline font-mono"
         >
-          {isExpanded ? 'Show less' : 'Show more'}
+          {isExpanded ? 'Read less' : 'Read more'}
         </button>
       )}
     </div>
   )
 }
-

@@ -13,7 +13,10 @@ export function Input({
   prefix,
   suffix,
   className = '',
+  inputClassName = '',
   autoComplete = 'off',
+  spellCheck = false,
+  autoCorrect = 'off',
   ...props
 }) {
   return (
@@ -33,7 +36,7 @@ export function Input({
         } ${className}`}
       >
         {prefix && (
-          <span className="mr-1.5 select-none text-xs font-mono text-zinc-500 shrink-0">
+          <span className="mr-1.5 select-none text-xs font-mono text-zinc-500 shrink-0 tracking-[0.02em]">
             {prefix}
           </span>
         )}
@@ -46,7 +49,9 @@ export function Input({
           placeholder={placeholder}
           required={required}
           autoComplete={autoComplete}
-          className="w-full bg-transparent text-sm text-white placeholder-zinc-600 outline-none"
+          spellCheck={spellCheck}
+          autoCorrect={autoCorrect}
+          className={`w-full bg-transparent text-sm text-white placeholder-zinc-600 outline-none tracking-[0.02em] ${inputClassName}`}
           {...props}
         />
 
