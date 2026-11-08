@@ -22,6 +22,7 @@ export function AcceptInviteCard() {
   const [error, setError] = useState('')
 
   const [fullName, setFullName] = useState('')
+  const [employeeId, setEmployeeId] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -55,6 +56,7 @@ export function AcceptInviteCard() {
         if (!controller.signal.aborted) {
           setInviteData(data)
           setFullName(data.name || '')
+          setEmployeeId(data.employeeId || '')
         }
       } catch (err) {
         if (err.name === 'AbortError' || controller.signal.aborted) return
@@ -83,6 +85,11 @@ export function AcceptInviteCard() {
       return
     }
 
+    if (!employeeId.trim()) {
+      setSubmitError('Please enter your Employee ID.')
+      return
+    }
+
     if (!password || password.length < 8) {
       setSubmitError('Password must be at least 8 characters.')
       return
@@ -101,6 +108,7 @@ export function AcceptInviteCard() {
         {
           token,
           fullName: fullName.trim(),
+          employeeId: employeeId.trim().toUpperCase(),
           password,
         },
         { signal: controller.signal }
@@ -274,6 +282,16 @@ export function AcceptInviteCard() {
               required
             />
           )}
+
+          {/* Employee ID */}
+          <Input
+            id="inv-employeeId"
+            label="Employee ID"
+            placeholder="e.g. EMP-1042"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value.replace(/^\s+/, '').toUpperCase())}
+            required
+          />
 
           {/* Password */}
           <Input

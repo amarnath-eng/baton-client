@@ -59,3 +59,15 @@ export async function revokeInvitationApi(id, options = {}) {
     ...options,
   })
 }
+
+/**
+ * 6. Resend a pending invitation (logs link to Node.js terminal & refreshes token)
+ * @param {string} id
+ */
+export async function resendInvitationApi(id, options = {}) {
+  return request(`/invitations/${id}/resend`, {
+    method: 'POST',
+    defaultError: 'Failed to resend invitation.',
+    ...options,
+  })
+}

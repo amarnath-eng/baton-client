@@ -22,6 +22,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    employeeId: '',
     companyName: '',
     workspaceSlug: '',
     password: '',
@@ -48,6 +49,12 @@ export function useRegister({ onSubmitSuccess } = {}) {
 
     setFormData((prev) => ({ ...prev, fullName: val }))
     if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: '' }))
+  }
+
+  const handleEmployeeIdChange = (e) => {
+    const val = e.target.value.replace(/^\s+/, '').toUpperCase()
+    setFormData((prev) => ({ ...prev, employeeId: val }))
+    if (errors.employeeId) setErrors((prev) => ({ ...prev, employeeId: '' }))
   }
 
   const handleEmailChange = (e) => {
@@ -90,6 +97,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
     const cleanConfirm = formData.confirmPassword.trim()
 
     if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required'
+    if (!formData.employeeId.trim()) newErrors.employeeId = 'Employee ID is required'
     if (!formData.email.trim()) newErrors.email = 'Work email is required'
     else if (!isEmailVerified) newErrors.email = 'Please verify your work email with OTP first'
 
@@ -126,6 +134,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
         {
           fullName: formData.fullName.trim(),
           email: formData.email.trim(),
+          employeeId: formData.employeeId.trim().toUpperCase(),
           companyName: formData.companyName.trim(),
           workspaceSlug: formData.workspaceSlug.trim(),
           password: formData.password.trim(),
@@ -164,6 +173,7 @@ export function useRegister({ onSubmitSuccess } = {}) {
     setIsRequestAccessOpen,
     setVerificationToken,
     handleFullNameChange,
+    handleEmployeeIdChange,
     handleEmailChange,
     handleCompanyChange,
     handleSlugChange,

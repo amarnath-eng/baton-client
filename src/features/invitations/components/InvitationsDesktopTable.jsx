@@ -8,7 +8,8 @@ import {
 } from '../../../components/ui/Table.jsx'
 import { Button } from '../../../components/ui/Button.jsx'
 import StatusBadge from './StatusBadge.jsx'
-import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import CopyInviteLink from './CopyInviteLink.jsx'
+import { getInitials, formatDate, getInviteUrl, getActiveTimeRemaining } from '../utils/formatters.js'
 import { INVITATION_STATUS } from '../../../constants/invitations.js'
 
 /**
@@ -23,6 +24,7 @@ export default function InvitationsDesktopTable({
   copiedId,
   onCopy,
   onRevoke,
+  now = Date.now(),
 }) {
   return (
     <div className="hidden sm:block">
@@ -40,6 +42,7 @@ export default function InvitationsDesktopTable({
         <TableBody>
           {invitations.map((inv) => {
             const inviteUrl = getInviteUrl(inv._id, inv.inviteUrl)
+
             return (
               <TableRow key={inv._id}>
                 <TableCell>
@@ -61,7 +64,9 @@ export default function InvitationsDesktopTable({
                 <TableCell className="text-zinc-300 text-xs">
                   {inv.invitedBy?.fullName || 'Workspace Admin'}
                 </TableCell>
-                <TableCell className="text-zinc-400 font-mono text-xs">{formatDate(inv.expiresAt)}</TableCell>
+                <TableCell className="text-zinc-400 font-mono text-xs">
+                  {formatDate(inv.expiresAt)}
+                </TableCell>
                 <TableCell>
                   <StatusBadge status={inv.status} />
                 </TableCell>
@@ -77,9 +82,9 @@ export default function InvitationsDesktopTable({
                             onRevoke(inv._id)
                             setConfirmingRevokeId(null)
                           }}
-                          className="text-[11px] px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 hover:text-white border-zinc-700 font-medium"
+                          className="text-[11px] px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white border-rose-500/40 font-medium"
                         >
-                          Confirm?
+                          Confirm Revoke?
                         </Button>
                         <button
                           type="button"
@@ -93,30 +98,21 @@ export default function InvitationsDesktopTable({
                     ) : (
                       <div className="flex items-center justify-end gap-2">
                         {inviteUrl && (
-                          <button
-                            type="button"
-                            onClick={() => onCopy(inviteUrl, inv._id)}
-                            className="text-[11px] font-medium text-zinc-300 hover:text-white px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition cursor-pointer flex items-center gap-1.5"
-                            title="Copy 7-day invitation link"
-                          >
-                            {copiedId === inv._id ? (
-                              <span className="text-emerald-400 font-semibold">✓ Copied</span>
-                            ) : (
-                              <>
-                                <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
-                                <span>Copy Link</span>
-                              </>
-                            )}
-                          </button>
+                          <CopyInviteLink
+                            inviteUrl={inviteUrl}
+                            id={inv._id}
+                            expiresAt={inv.expiresAt}
+                            isCopied={copiedId === inv._id}
+                            onCopy={onCopy}
+                            variant="button"
+                          />
                         )}
                         <Button
                           size="sm"
                           variant="outline"
                           loading={actionLoadingId === inv._id}
                           onClick={() => setConfirmingRevokeId(inv._id)}
-                          className="text-zinc-400 hover:text-white hover:bg-zinc-800/60 border-zinc-800"
+                          className="text-rose-400/90 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/20 text-xs py-1"
                         >
                           Revoke
                         </Button>

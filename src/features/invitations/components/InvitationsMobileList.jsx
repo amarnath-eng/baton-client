@@ -2,7 +2,7 @@ import { Button } from '../../../components/ui/Button.jsx'
 import StatusBadge from './StatusBadge.jsx'
 import ExpandableNote from './ExpandableNote.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
-import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { getInitials, formatDate, getInviteUrl, getActiveTimeRemaining } from '../utils/formatters.js'
 import { INVITATION_STATUS } from '../../../constants/invitations.js'
 
 /**
@@ -17,11 +17,15 @@ export default function InvitationsMobileList({
   copiedId,
   onCopy,
   onRevoke,
+  now = Date.now(),
 }) {
   return (
     <div className="sm:hidden space-y-2.5">
       {invitations.map((inv) => {
         const inviteUrl = getInviteUrl(inv._id, inv.inviteUrl)
+        const isPending = inv.status === INVITATION_STATUS.PENDING
+        const activeTime = isPending ? getActiveTimeRemaining(inv.expiresAt, now) : null
+
         return (
           <div
             key={inv._id}
@@ -86,8 +90,11 @@ export default function InvitationsMobileList({
               <CopyInviteLink
                 inviteUrl={inviteUrl}
                 id={inv._id}
+                expiresAt={inv.expiresAt}
                 isCopied={copiedId === inv._id}
                 onCopy={onCopy}
+                onRevoke={canInvite ? onRevoke : null}
+                actionLoading={actionLoadingId === inv._id}
                 variant="bar"
               />
             )}
@@ -101,45 +108,6 @@ export default function InvitationsMobileList({
                 <div className="flex-1 min-w-0">
                   <ExpandableNote note={inv.message} label="Invitation Note:" />
                 </div>
-              </div>
-            )}
-
-            {/* Actions for Pending Invitations */}
-            {inv.status === INVITATION_STATUS.PENDING && canInvite && (
-              <div className="pt-2 border-t border-zinc-900">
-                {confirmingRevokeId === inv._id ? (
-                  <div className="flex items-center gap-2 animate-in fade-in duration-150">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      loading={actionLoadingId === inv._id}
-                      onClick={() => {
-                        onRevoke(inv._id)
-                        setConfirmingRevokeId(null)
-                      }}
-                      className="flex-1 text-xs py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 hover:text-white border-zinc-700 font-medium"
-                    >
-                      Confirm Revoke?
-                    </Button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmingRevokeId(null)}
-                      className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white rounded-lg border border-zinc-800 hover:bg-zinc-800 transition cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    loading={actionLoadingId === inv._id}
-                    onClick={() => setConfirmingRevokeId(inv._id)}
-                    className="w-full text-zinc-400 hover:text-white hover:bg-zinc-800/60 border-zinc-800 text-xs py-1.5"
-                  >
-                    Revoke Invitation
-                  </Button>
-                )}
               </div>
             )}
           </div>

@@ -28,6 +28,9 @@ export function useClipboardCopy(resetDelayMs = 2000) {
 
       if (!text) return false
 
+      // Always print invitation link in browser console as required
+      console.log('[Baton Invitation Link]:', text)
+
       try {
         if (navigator?.clipboard?.writeText) {
           await navigator.clipboard.writeText(text)

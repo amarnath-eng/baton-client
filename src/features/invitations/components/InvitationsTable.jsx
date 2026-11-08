@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TableLoading, TableEmpty } from '../../../components/ui/Table.jsx'
 import { useClipboardCopy } from '../../../hooks/useClipboardCopy.js'
 import InvitationsMobileList from './InvitationsMobileList.jsx'
@@ -17,6 +17,14 @@ export default function InvitationsTable({
 }) {
   const [confirmingRevokeId, setConfirmingRevokeId] = useState(null)
   const { copiedId, copyToClipboard } = useClipboardCopy()
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   if (loading) {
     return <TableLoading message="Loading invitations..." />
@@ -40,6 +48,7 @@ export default function InvitationsTable({
     copiedId,
     onCopy: copyToClipboard,
     onRevoke,
+    now,
   }
 
   return (

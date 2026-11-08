@@ -11,6 +11,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [employeeId, setEmployeeId] = useState('')
   const [role, setRole] = useState(USER_ROLES.ENGINEER)
   const [message, setMessage] = useState('')
 
@@ -57,6 +58,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
     if (isOpen) {
       setName('')
       setEmail('')
+      setEmployeeId('')
       setRole(USER_ROLES.ENGINEER)
       setMessage('')
       setError(null)
@@ -85,6 +87,10 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
       setError('Please provide the team member’s name.')
       return
     }
+    if (!employeeId.trim()) {
+      setError('Please provide the team member’s Employee ID.')
+      return
+    }
     if (!email.trim() || !email.includes('@')) {
       setError('Please provide a valid work email address.')
       return
@@ -102,6 +108,7 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
         {
           name: name.trim(),
           email: email.trim().toLowerCase(),
+          employeeId: employeeId.trim().toUpperCase() || undefined,
           role,
           message: message.trim() || undefined,
         },
@@ -109,6 +116,9 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
       )
 
       if (!controller.signal.aborted) {
+        if (response?.inviteUrl) {
+          console.log('[Baton Invitation Link]:', response.inviteUrl)
+        }
         setGeneratedInvite(response)
         onInvitationCreated?.(response)
       }
@@ -148,49 +158,26 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
       )}
 
       {generatedInvite ? (
-        /* Success Screen with Copyable Link */
-        <div className="space-y-3">
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5">
-            <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-black text-[10px] font-bold">
+        /* Clean Confirmation (Link logged to console, never displayed in UI) */
+        <div className="space-y-4">
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400 text-black text-xs font-bold shrink-0">
                 ✓
               </span>
-              <p className="text-xs font-semibold text-emerald-300">
+              <p className="text-sm font-semibold text-emerald-300">
                 Invitation Dispatched Successfully
               </p>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              An invitation email was dispatched to <strong className="text-white">{email}</strong> with role <strong className="text-white capitalize">{role}</strong>.
+            <p className="text-xs text-zinc-300 mt-2 leading-relaxed">
+              An invitation email has been dispatched to <strong className="text-white">{email}</strong>{' '}
+              {employeeId && <>({employeeId}) </>}with assigned role{' '}
+              <strong className="text-white capitalize">{role}</strong>.
             </p>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1">
-              Direct Invitation Link (Expires in 7 days):
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={generatedInvite.inviteUrl || ''}
-                className="flex-1 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none"
-              />
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={handleCopyLink}
-              >
-                {copied ? 'Copied!' : 'Copy Link'}
-              </Button>
-            </div>
-            <p className="text-[11px] text-zinc-500 mt-0.5">
-              Share this link directly or open in incognito to test the onboarding flow.
-            </p>
-          </div>
-
-          <div className="pt-2.5 border-t border-zinc-800/80 flex justify-end">
-            <Button type="button" size="sm" variant="primary" onClick={onClose}>
+          <div className="pt-2 border-t border-zinc-800/80 flex justify-end">
+            <Button type="button" size="sm" variant="primary" onClick={onClose} className="w-full sm:w-auto">
               Done
             </Button>
           </div>
@@ -204,6 +191,15 @@ export default function InviteMemberModal({ isOpen, onClose, onInvitationCreated
             placeholder="e.g. Alex Morgan"
             value={name}
             onChange={handleNameChange}
+            required
+          />
+
+          <Input
+            label="Employee ID"
+            type="text"
+            placeholder="e.g. EMP-1042"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value.replace(/^\s+/, '').toUpperCase())}
             required
           />
 

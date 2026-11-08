@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
 import RejectActionBox from './RejectActionBox.jsx'
 import ExpandableNote from './ExpandableNote.jsx'
-import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { getInitials, formatDate, getInviteUrl, getActiveTimeRemaining } from '../utils/formatters.js'
 import { ACCESS_REQUEST_STATUS } from '../../../constants/accessRequests.js'
 
 /**
@@ -17,15 +17,19 @@ export default function AccessRequestDesktopRow({
   setConfirmingRejectId,
   confirmingApproveId,
   setConfirmingApproveId,
+  confirmingRevokeId,
+  setConfirmingRevokeId,
   copiedId,
   onCopy,
   onReview,
+  onRevoke,
 }) {
   const inviteUrl = getInviteUrl(req._id, req.inviteUrl)
   const isPending = req.status === ACCESS_REQUEST_STATUS.PENDING
   const isApproved = req.status === ACCESS_REQUEST_STATUS.APPROVED
   const isRejecting = confirmingRejectId === req._id
   const isApproving = confirmingApproveId === req._id
+  const isInvitePending = isApproved && (req.invitationId?.status === 'pending' || !req.invitationId?.status || typeof req.invitationId === 'string')
 
   return (
     <div
@@ -41,8 +45,15 @@ export default function AccessRequestDesktopRow({
             {getInitials(req.name, req.email)}
           </div>
           <div className="min-w-0">
-            <div className="text-xs font-semibold text-white tracking-tight truncate">
-              {req.name}
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="text-xs font-semibold text-white tracking-tight truncate">
+                {req.name}
+              </span>
+              {req.employeeId && (
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700/60 shrink-0 font-medium">
+                  {req.employeeId}
+                </span>
+              )}
             </div>
             <div className="text-[11px] text-zinc-400 font-mono truncate">
               {req.email}
@@ -158,15 +169,75 @@ export default function AccessRequestDesktopRow({
               </div>
             )
           ) : (
-            <div className="flex items-center gap-2.5">
-              {isApproved && inviteUrl && (
-                <CopyInviteLink
-                  inviteUrl={inviteUrl}
-                  id={req._id}
-                  isCopied={copiedId === req._id}
-                  onCopy={onCopy}
-                  variant="button"
-                />
+            <div className="flex items-center gap-2 justify-end">
+              {isApproved && (
+                <>
+                  {inviteUrl && isInvitePending && (
+                    <CopyInviteLink
+                      inviteUrl={inviteUrl}
+                      id={req._id}
+                      expiresAt={req.invitationId?.expiresAt}
+                      isCopied={copiedId === req._id}
+                      onCopy={onCopy}
+                      variant="button"
+                    />
+                  )}
+
+                  {/* Show Revoke button for approver until the user accepts/joins */}
+                  {isInvitePending && (
+                    confirmingRevokeId === req._id ? (
+                      <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          loading={actionLoadingId === req._id || actionLoadingId === req.invitationId?._id}
+                          onClick={() => {
+                            const targetId = req.invitationId?._id || req.invitationId || req._id
+                            onRevoke(targetId)
+                            setConfirmingRevokeId(null)
+                          }}
+                          className="text-[11px] px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white border-rose-500/40 font-medium cursor-pointer"
+                        >
+                          Confirm Revoke?
+                        </Button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingRevokeId(null)}
+                          className="text-zinc-400 hover:text-white p-1 rounded hover:bg-zinc-800 transition cursor-pointer text-xs"
+                          title="Cancel"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        loading={actionLoadingId === req._id || actionLoadingId === req.invitationId?._id}
+                        onClick={() => {
+                          setConfirmingRevokeId(req._id)
+                          setConfirmingApproveId(null)
+                          setConfirmingRejectId(null)
+                        }}
+                        className="text-rose-400/90 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/20 text-xs py-1 px-2.5 cursor-pointer"
+                      >
+                        Revoke
+                      </Button>
+                    )
+                  )}
+
+                  {!isInvitePending && req.invitationId?.status === 'accepted' && (
+                    <span className="text-[11px] font-mono text-emerald-400 font-medium">
+                      Joined
+                    </span>
+                  )}
+
+                  {!isInvitePending && req.invitationId?.status === 'revoked' && (
+                    <span className="text-[11px] font-mono text-zinc-500">
+                      Revoked
+                    </span>
+                  )}
+                </>
               )}
               {!isApproved && (
                 <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">

@@ -101,6 +101,7 @@ export function useTeamManagement(activeTab = 'requests') {
 
       if (action === 'approve') {
         if (response?.inviteUrl) {
+          console.log('[Baton Approved Access Request Link]:', response.inviteUrl)
           try {
             const saved = JSON.parse(localStorage.getItem('baton_invite_urls') || '{}')
             saved[id] = response.inviteUrl
@@ -108,7 +109,7 @@ export function useTeamManagement(activeTab = 'requests') {
             localStorage.setItem('baton_invite_urls', JSON.stringify(saved))
           } catch (_) {}
         }
-        setNotification({ type: 'approve', message: 'Access request has been approved.' })
+        setNotification({ type: 'approve', message: 'Access request approved. Invitation email sent.' })
       } else if (action === 'reject') {
         setNotification({ type: 'reject', message: 'Access request has been rejected.' })
       }

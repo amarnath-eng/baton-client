@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge.jsx'
 import ExpandableNote from './ExpandableNote.jsx'
 import CopyInviteLink from './CopyInviteLink.jsx'
 import RejectActionBox from './RejectActionBox.jsx'
-import { getInitials, formatDate, getInviteUrl } from '../utils/formatters.js'
+import { getInitials, formatDate, getInviteUrl, getActiveTimeRemaining } from '../utils/formatters.js'
 import { ACCESS_REQUEST_STATUS } from '../../../constants/accessRequests.js'
 
 /**
@@ -16,14 +16,18 @@ export default function AccessRequestsMobileList({
   setConfirmingRejectId,
   confirmingApproveId,
   setConfirmingApproveId,
+  confirmingRevokeId,
+  setConfirmingRevokeId,
   copiedId,
   onCopy,
   onReview,
+  onRevoke,
 }) {
   return (
     <div className="sm:hidden space-y-2.5">
       {requests.map((req) => {
         const inviteUrl = getInviteUrl(req._id, req.inviteUrl)
+        const isInvitePending = req.status === ACCESS_REQUEST_STATUS.APPROVED && (req.invitationId?.status === 'pending' || !req.invitationId?.status || typeof req.invitationId === 'string')
         return (
           <div
             key={req._id}
@@ -36,9 +40,16 @@ export default function AccessRequestsMobileList({
                   {getInitials(req.name, req.email)}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs font-semibold text-white tracking-tight truncate">
-                    {req.name}
-                  </h3>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <h3 className="text-xs font-semibold text-white tracking-tight truncate">
+                      {req.name}
+                    </h3>
+                    {req.employeeId && (
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700/60 shrink-0 font-medium">
+                        {req.employeeId}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] text-zinc-400 font-mono truncate">
                     {req.email}
                   </p>
@@ -92,9 +103,12 @@ export default function AccessRequestsMobileList({
             {req.status === ACCESS_REQUEST_STATUS.APPROVED && inviteUrl && (
               <CopyInviteLink
                 inviteUrl={inviteUrl}
-                id={req._id}
+                id={req.invitationId?._id || req.invitationId || req._id}
+                expiresAt={req.invitationId?.expiresAt}
                 isCopied={copiedId === req._id}
                 onCopy={onCopy}
+                onRevoke={isInvitePending ? onRevoke : null}
+                actionLoading={actionLoadingId === req._id || actionLoadingId === req.invitationId?._id}
                 variant="bar"
               />
             )}
@@ -111,7 +125,7 @@ export default function AccessRequestsMobileList({
               </div>
             )}
 
-            {/* Actions for Pending Requests */}
+            {/* Actions for Requests */}
             {req.status === ACCESS_REQUEST_STATUS.PENDING && (
               <div className="pt-2 border-t border-zinc-900">
                 {confirmingRejectId === req._id ? (

@@ -21,6 +21,7 @@ export function RequestAccessModal({
 }) {
   const [fullName, setFullName] = useState(initialFullName)
   const [email, setEmail] = useState(initialEmail)
+  const [employeeId, setEmployeeId] = useState('')
   const [role, setRole] = useState(USER_ROLES.ENGINEER)
   const [verificationToken, setVerificationToken] = useState(initialVerificationToken)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -45,6 +46,7 @@ export function RequestAccessModal({
     if (isOpen) {
       setFullName(initialFullName || '')
       setEmail(initialEmail || '')
+      setEmployeeId('')
       setVerificationToken(initialVerificationToken || null)
       setError('')
       setIsSubmitted(false)
@@ -73,6 +75,10 @@ export function RequestAccessModal({
       setError('Please enter your full name')
       return
     }
+    if (!employeeId.trim()) {
+      setError('Please enter your Employee ID')
+      return
+    }
     if (!isEmailVerified) {
       setError('Please verify your work email with OTP first')
       return
@@ -91,6 +97,7 @@ export function RequestAccessModal({
         {
           fullName: fullName.trim(),
           email: email.trim(),
+          employeeId: employeeId.trim().toUpperCase(),
           companySlug,
           role,
           verificationToken,
@@ -164,6 +171,16 @@ export function RequestAccessModal({
                 .replace(/\s{2,}/g, ' ')
               setFullName(val)
             }}
+            required
+          />
+
+          {/* Employee ID */}
+          <Input
+            id="req-employeeId"
+            label="Employee ID"
+            placeholder="e.g. EMP-1042"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value.replace(/^\s+/, '').toUpperCase())}
             required
           />
 
